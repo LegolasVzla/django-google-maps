@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Demo de Google Maps</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
+    <style media="screen">
+      #gmap_canvas img{
+        max-width:none !important;
+        background:none!important
+      }
+    </style>
+
+    <!-- Google Maps -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCYSAPp1UgGJdEqhrhibvkm5KlqABumxqM" async defer></script>
+
+  </head>
+  <body onload="load_map()">
+
+    <div class="container">
+
+      <h1>GoogleMaps <small>basic example of how to use Google Maps API</small></h1>
+
+			<div id='gmap_canvas' style='height:350px;width:100%;'></div>
+
+    </div>
+
+      <script src="js/app.js" charset="utf-8"></script>
+
+  </body>
+</html>
