@@ -8,5 +8,7 @@ User = get_user_model()
 
 class UserViewSet(viewsets.ModelViewSet):
 	queryset = User.objects.all()
-	permission_classes = (IsAuthenticated,)
+	permission_classes = [
+		permissions.AllowAny
+	]
 	serializer_class = UserSerializer

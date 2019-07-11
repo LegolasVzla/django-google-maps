@@ -41,8 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-#    'users',
-    'frontend'
+    'users',
+    'frontend',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -109,6 +110,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Custom User
+# https://docs.djangoproject.com/en/2.2/topics/auth/customizing/#auth-custom-user
+
+AUTH_USER_MODEL = 'users.CustomUser'
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
@@ -128,3 +133,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+###################################################################
+##### REST_FRAMEWORK
+###################################################################
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_DIZE': 10,
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ]
+}
