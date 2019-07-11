@@ -9,7 +9,6 @@ function addSpots(location){
 		// animation: google.maps.Animation.DROP
 	});
 
-	//console.log("location", location)
 	console.log("latitude: ", location.lat());
 	console.log("longitud: ", location.lng());
 	for (var i in spotsArray) {
@@ -26,6 +25,12 @@ function load_map(){
 		zoom:15,
 		// default location of the map, get the Location of the user
 		center: new google.maps.LatLng(10.4823307,-66.861713),
+		mapTypeControl: true,
+		/*
+		mapTypeControlOptions: {
+		  style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+		  position: google.maps.ControlPosition.TOP_LEFT
+		},*/
 		// map type
 		mapTypeId: google.maps.MapTypeId.ROADMAP
 	};
@@ -48,4 +53,18 @@ function load_map(){
 
 	spotsArray.push(spot);
 
+	var shape = {
+	    coord: [1, 1, 1, 20, 18, 20, 18 , 1],
+	    type: 'poly'
+	};
+	var bbLatLng = new google.maps.LatLng(10.4827263,-66.8625633);
+
+	var bbMarker = new google.maps.Marker({
+	    icon: 'https://cdn0.iconfinder.com/data/icons/tiny-icons-1/100/tiny-08-512.png',
+	    shape: shape,
+	    position: bbLatLng,
+	    map: map
+	});
+
 }
+
