@@ -26,6 +26,8 @@ config.read(BASE_DIR + '/settings.ini')
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '*n3hoks6ece)zj)w95aoh=vzvf(2%e!uzws@s_28w60top2lwh'
 
+API_KEY = config.get('googleMapsConf', 'API_KEY')
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 

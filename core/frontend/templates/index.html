@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
   <head>
@@ -8,7 +9,7 @@
     <title>Demo de Google Maps</title>
 
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" >
 
     <style media="screen">
       #gmap_canvas img{
@@ -18,7 +19,7 @@
     </style>
 
     <!-- Google Maps -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCYSAPp1UgGJdEqhrhibvkm5KlqABumxqM" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{api_key}}" async defer></script>
 
   </head>
   <body onload="load_map()">
@@ -27,11 +28,11 @@
 
       <h1>GoogleMaps <small>basic example of how to use Google Maps API</small></h1>
 
-			<div id='gmap_canvas' style='height:350px;width:100%;'></div>
+      <div id='gmap_canvas' style='height:350px;width:100%;'></div>
 
     </div>
 
-      <script src="js/app.js" charset="utf-8"></script>
+      <script src="{% static 'js/custom/app.js' %}" charset="utf-8"></script>
 
   </body>
 </html>
