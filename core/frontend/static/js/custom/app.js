@@ -57,14 +57,26 @@ function load_map(){
 	    coord: [1, 1, 1, 20, 18, 20, 18 , 1],
 	    type: 'poly'
 	};
-	var bbLatLng = new google.maps.LatLng(10.4827263,-66.8625633);
 
-	var bbMarker = new google.maps.Marker({
-	    icon: 'https://cdn0.iconfinder.com/data/icons/tiny-icons-1/100/tiny-08-512.png',
-	    shape: shape,
-	    position: bbLatLng,
-	    map: map
-	});
+	var mySpotList = [{x:10.48218098377708,y:-66.86277687549591},{x:10.480189704841623,y:-66.86086177825928},{x:10.491156086040085,y:-66.86255693435669}];
+	var currentSpot;
+	var mySpotList;
+
+	for (var i=0; i<mySpotList.length; ++i) {
+
+		currentSpot = new google.maps.LatLng(mySpotList[i].x,mySpotList[i].y);
+
+		mySpotsArray = new google.maps.Marker({
+		    icon: '/static/media/place_icon.png',
+		    shape: shape,
+		    position: currentSpot,
+		    map: map
+		});
+
+		spotsArray.push(mySpotsArray);
+
+	}
+
 
 }
 
