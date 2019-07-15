@@ -26,8 +26,7 @@
       }
     </style>
 
-    <script src="https://maps.googleapis.com/maps/api/js?v=3key={{api_key}}" async defer></script>
-
+    <script src="https://maps.googleapis.com/maps/api/js?v=3key={{ api_key }}" async defer></script>
   </head>
   <body onload="load_map()">
 
@@ -50,26 +49,38 @@
         <table id="spotTable" class="table table-striped table-bordered" style="width:100%">
         <thead>
             <tr>
+                <th>Id</th>              
                 <th>Name</th>
+<!--
                 <th>Lat</th>
                 <th>Long</th>
                 <th>Country</th>
                 <th>City</th>
+-->                
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>Place Name</td>
+            {% for key,values in data.items %}
+            <tr>
+                <td>{{forloop.counter}}</td>
+              {% if key == 'name' %}
+                <td>{{ values }}</td>
+              {% endif %}
+<!--
                 <td>Lat</td>
                 <td>Long</td>
                 <td>Country Name</td>
                 <td>City Name</td>
+-->                
             </tr>
+            {% endfor %}            
         <tbody>
         </table>
 
       </div>
     </div>
+
 
   </body>
 </html>
@@ -93,3 +104,4 @@
       $('#spotTable').DataTable();
   } );
   </script>
+
