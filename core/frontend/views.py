@@ -18,8 +18,9 @@ class IndexView(APIView):
         response = response.content.decode('utf-8')
         json_response = json.loads(response)
         content['api_key'] = API_KEY
-        content['data'] = json_response[0]
-        #import pdb;pdb.set_trace()
-    	#content = {'api_key': API_KEY }
-    	#print(content)
+        try:
+            content['data'] = json_response
+        except Exception as e:
+            content['data'] = {'name':'Not found information'}
+        #print(content)
         return render(request, 'index.html',content)

@@ -51,28 +51,22 @@
             <tr>
                 <th>Id</th>              
                 <th>Name</th>
-<!--
                 <th>Lat</th>
                 <th>Long</th>
                 <th>Country</th>
                 <th>City</th>
--->                
             </tr>
         </thead>
         <tbody>
             <tr>
-            {% for key,values in data.items %}
+            {% for key in data %}
             <tr>
                 <td>{{forloop.counter}}</td>
-              {% if key == 'name' %}
-                <td>{{ values }}</td>
-              {% endif %}
-<!--
-                <td>Lat</td>
-                <td>Long</td>
-                <td>Country Name</td>
-                <td>City Name</td>
--->                
+                <td>{{ key.name }}</td>
+                <td>{{ key.lat }}</td>
+                <td>{{ key.lng }}</td>
+                <td>{{ key.country }}</td>
+                <td>{{ key.city }}</td>
             </tr>
             {% endfor %}            
         <tbody>
@@ -80,7 +74,6 @@
 
       </div>
     </div>
-
 
   </body>
 </html>
