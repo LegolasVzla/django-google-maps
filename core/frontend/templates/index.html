@@ -3,7 +3,9 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <!--
     <link rel="shortcut icon" href="favicon.ico">
+    -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Demo de Google Maps</title>
@@ -16,7 +18,7 @@
 
     <!-- Datatable Bootstrap -->
     <link rel="stylesheet" href="{% static 'css/bootstrap/datatables/1.10.19/dataTables.bootstrap4.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/bootstrap/datatables/4.1.3/bootstrap.css' %}">
+    <!-- <link rel="stylesheet" href="{% static 'css/bootstrap/datatables/4.1.3/bootstrap.css' %}"> -->
 
     <!-- Google Maps -->
     <style media="screen">
@@ -25,10 +27,49 @@
         background:none!important
       }
     </style>
-
-    <script src="https://maps.googleapis.com/maps/api/js?v=3key={{ api_key }}" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}" async defer></script>
   </head>
   <body onload="load_map()">
+
+    <div class="container">
+      <div class="modal fade" id="placeShowModal" role="dialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title"><b>Add a New Place:</h4></b> 
+            </div>
+            <div class="modal-body">
+              <form method="post">
+              {% csrf_token %}
+                  <fieldset>
+                    <div class="form-group"><b>Place Name:</b>
+                      <input class="form-control" placeholder="" name="place_name" id="placeName" type="text" required="">
+                    </div>
+                    <div class="form-group"><b>Latitude:</b>
+                      <input class="form-control" placeholder="" id="latitude" type="text" readonly="">
+                    </div>
+                    <div class="form-group"><b>Length:</b>
+                      <input class="form-control" placeholder="" id="length" type="text" readonly="">
+                    </div>
+                    <div class="form-group"><b>Country:</b>
+                      <input class="form-control" placeholder="" id="countryName" type="text" readonly="">
+                    </div>
+                    <div class="form-group"><b>City:</b>
+                      <input class="form-control" placeholder="" id="cityName" type="text" readonly="">
+                    </div>
+                  </fieldset>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" id="savePlaceCreate" class="btn btn-success" onclick='placeCreate()'>Guardar</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
 
     <div id="tabs">
       <ul>
@@ -38,14 +79,13 @@
       <div id="tabs-1">
           <p>Basic example of how to use Google Maps API</p>
           <div class="container">
-
             <div id='gmap_canvas' style='height:350px;width:100%;'></div>
-
+            <div class="btn-group">
+              <button type="submit" class="btn btn-primary" data-placeName="" data-latitude="" name="carpetas" data-toggle="modal" data-target="#placeShowModal" ><i class="fa fa-map-marker" title="Add Place" aria-hidden="true"></i>Add Place</button>
+            </div>
           </div>
-
       </div>
       <div id="tabs-2">
-
         <table id="spotTable" class="table table-striped table-bordered" style="width:100%">
         <thead>
             <tr>
@@ -58,7 +98,6 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
             {% for key in data %}
             <tr>
                 <td>{{forloop.counter}}</td>
@@ -88,7 +127,12 @@
     $( "#tabs" ).tabs();
   </script>
 
-  <!-- Datatable Bootstrap -->
+  <!-- Bootstrap -->
+  <script src="{% static 'js/bootstrap/3.4.1/jquery.min.js' %}"></script>
+
+  <script src="{% static 'js/bootstrap/3.4.0/bootstrap.min.js' %}"></script>
+
+  <!-- Bootstrap Datatable -->
   <script src="{% static 'js/bootstrap/datatables/jquery-3.3.1.js' %}"></script>
   <script src="{% static 'js/bootstrap/datatables/1.10.19/jquery.dataTables.min.js' %}"></script>
   <script src="{% static 'js/bootstrap/datatables/1.10.19/dataTables.bootstrap4.min.js' %}"></script>
@@ -98,3 +142,26 @@
   } );
   </script>
 
+  <!-- Add a New Place
+  <script src="{% static 'js/custom/addPlace.js' %}"></script>
+  -->
+
+<script>
+// Function to add customer spots
+function placeModalAdd(){
+
+  var spot = new google.maps.Marker({
+    position: location,
+    map: map,
+    // animation: google.maps.Animation.DROP
+  });
+
+  console.log("latitude button: ", location);
+  console.log("longitud button: ", location);
+  for (var i in spotsArray) {
+    spotsArray[i].setMap(null);
+  }
+
+  spotsArray.push(spot);
+}
+</script>

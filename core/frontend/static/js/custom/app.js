@@ -11,6 +11,7 @@ function addSpots(location){
 
 	console.log("latitude: ", location.lat());
 	console.log("longitud: ", location.lng());
+
 	for (var i in spotsArray) {
 		spotsArray[i].setMap(null);
 	}
