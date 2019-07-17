@@ -12,6 +12,28 @@ function addSpots(location){
 	console.log("latitude: ", location.lat());
 	console.log("longitud: ", location.lng());
 
+	$.ajax({
+	    url:'/index/',
+	    type: 'POST',
+	    data: {
+	      lat: location.lat(),
+	      lng: location.lng()
+	 },success: function showModal(data) {
+	  if (data.code==200) {
+	    console.log("success",data);
+	    $("#latitude").val(data.lat)
+	    $("#length").val(data.lng)
+	    $("#placeShowModal").click(function(e){
+	      console.log("close modal",data)
+	      e.preventDefault();
+	     // $("#placeShowModal").modal('show');
+	    });
+	  }else{
+	    console.log('Error to load modal');
+	  }
+	}
+	})
+
 	for (var i in spotsArray) {
 		spotsArray[i].setMap(null);
 	}

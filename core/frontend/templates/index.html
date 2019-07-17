@@ -47,10 +47,10 @@
                       <input class="form-control" placeholder="" name="place_name" id="placeName" type="text" required="">
                     </div>
                     <div class="form-group"><b>Latitude:</b>
-                      <input class="form-control" placeholder="" id="latitude" type="text" readonly="">
+                      <input class="form-control"  id="latitude" value=""  type="text" readonly="">
                     </div>
                     <div class="form-group"><b>Length:</b>
-                      <input class="form-control" placeholder="" id="length" type="text" readonly="">
+                      <input class="form-control"  id="length" value=""  type="text" readonly="">
                     </div>
                     <div class="form-group"><b>Country:</b>
                       <input class="form-control" placeholder="" id="countryName" type="text" readonly="">
@@ -141,27 +141,3 @@
       $('#spotTable').DataTable();
   } );
   </script>
-
-  <!-- Add a New Place
-  <script src="{% static 'js/custom/addPlace.js' %}"></script>
-  -->
-
-<script>
-// Function to add customer spots
-function placeModalAdd(){
-
-  var spot = new google.maps.Marker({
-    position: location,
-    map: map,
-    // animation: google.maps.Animation.DROP
-  });
-
-  console.log("latitude button: ", location);
-  console.log("longitud button: ", location);
-  for (var i in spotsArray) {
-    spotsArray[i].setMap(null);
-  }
-
-  spotsArray.push(spot);
-}
-</script>
