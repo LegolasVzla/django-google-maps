@@ -17,3 +17,13 @@ class Spots(models.Model):
 	is_deleted = models.BooleanField(default=False)
 	updated_date=models.DateTimeField(auto_now=True)
 	created_date = models.DateTimeField(auto_now_add=True)
+
+class Images(models.Model):
+	url = models.URLField()
+	spot = models.ForeignKey(Spots,related_name='images_spot_id',on_delete=models.CASCADE)
+	#extension = models.CharField( max_length = 100)
+	principalimage = models.BooleanField(default=False)
+	is_active = models.BooleanField(default=True)
+	is_deleted = models.BooleanField(default=False)
+	updated_date=models.DateTimeField(auto_now=True)
+	created_date = models.DateTimeField(auto_now_add=True)
