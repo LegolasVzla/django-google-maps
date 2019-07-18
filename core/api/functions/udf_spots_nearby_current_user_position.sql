@@ -15,7 +15,7 @@ DECLARE
 
   /*
   -- To Test:
-    SELECT udf_spots_nearby_current_user_position(23,-80.1358946,25.7697018);
+    SELECT udf_spots_nearby_current_user_position(1,-80.1358946,25.7697018);
   */
 
   -- Create a temporary table to store nearby places
@@ -25,7 +25,6 @@ DECLARE
         lat double precision,
         lng double precision,
         country character varying,
-        state_name character varying,
         city character varying,
         is_active boolean DEFAULT true
   );
@@ -36,7 +35,6 @@ DECLARE
     lat,
     lng,
     country,
-    state_name,
     city,
     is_active
   )
@@ -47,11 +45,10 @@ DECLARE
     lat,
     lng,
     country,
-    state_name,
     city,
     is_active
   FROM
-    spot
+    public.api_spots
   WHERE
     user_id = param_user_id
     /*
@@ -98,39 +95,10 @@ DECLARE
           tst.lng,
           tst.country,
           tst.city,
-          tst.is_active/*,
-          (
-            SELECT ARRAY_AGG(b.*) "imageList"
-            FROM (
-              SELECT --DISTINCT ON (si.id)
-                si.id "imageId",
-                si.url "imageURL",
-                si.extension,
-                si.principalimage,
-                si.is_active
-              FROM image si
-                INNER JOIN spot s
-                  ON si.spot_id = s.id
-                  AND
-                  si.is_active
-                  AND
-                  not si.is_deleted                      
-                  AND
-                  s.is_active
-                  AND
-                  not s.is_deleted
-                  AND
-                  s.user_id = param_user_id
-                  AND
-                  s.id = tst.id
-              GROUP BY
-                si.id, si.spot_id
-              ORDER BY 
-                si.id, si.principalimage
-            )b
-          )*/
+          tst.is_active,
+          (select public.udf_images_get(tst.id)) as "imageList"
         FROM 
-          temporal_spots_table tst     
+          temporal_spots_table tst
       )a;
 
   ELSE
@@ -144,6 +112,7 @@ DECLARE
         "lng": null,
         "country": null,
         "city": null,
+        "imageList": [],
         "is_active": null,
       }]';
 
