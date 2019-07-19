@@ -5,7 +5,7 @@ from django.http import (HttpResponse, HttpResponseForbidden,
 #from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.views import APIView
 #from rest_framework.permissions import IsAuthenticated
-from core.settings import API_KEY
+from core.settings import API_KEY,FONT_AWESOME_KEY
 from rest_framework import status
 import json
 import requests
@@ -19,6 +19,7 @@ class IndexView(APIView):
         response = response.content.decode('utf-8')
         json_response = json.loads(response)
         content['api_key'] = API_KEY
+        content['fontawesome_key'] = FONT_AWESOME_KEY        
         try:
             content['data'] = json_response
         except Exception as e:

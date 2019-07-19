@@ -20,6 +20,9 @@
     <link rel="stylesheet" href="{% static 'css/bootstrap/datatables/1.10.19/dataTables.bootstrap4.min.css' %}">
     <!-- <link rel="stylesheet" href="{% static 'css/bootstrap/datatables/4.1.3/bootstrap.css' %}"> -->
 
+    <!-- Font Awesome Icons -->
+    <script src="https://kit.fontawesome.com/{{fontawesome_key}}.js"></script>
+
     <!-- Google Maps -->
     <style media="screen">
       #gmap_canvas img{
@@ -82,9 +85,12 @@
       <div id="tabs-1">
           <p>Basic example of how to use Google Maps API</p>
           <div class="container">
-            <div id='gmap_canvas' style='height:350px;width:100%;'></div>
+            <div id='gmap_canvas' style='height:350px;width:100%;'></div><br>
             <div class="btn-group">
-              <button type="submit" class="btn btn-primary" data-placeName="" data-latitude="" name="carpetas" data-toggle="modal" data-target="#placeShowModal" ><i class="fa fa-map-marker" title="Add Place" aria-hidden="true"></i>Add Place</button>
+              <button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#placeShowModal"><i class="fa fa-map-marker" title="Add Place" aria-hidden="true"></i> Add Place</button>
+            </div>
+            <div class="btn-group">            
+              <button type="submit" class="btn btn-info" data-toggle="modal" data-target="#placeNearBy"><i class="fas fa-location-arrow" title="Show me Nearby Places" aria-hidden="true"></i> Show me Nearby Places</button>
             </div>
           </div>
       </div>
@@ -98,6 +104,8 @@
                 <th>Long</th>
                 <th>Country</th>
                 <th>City</th>
+                <th>Edit</th>
+                <th>Delete</th>                
             </tr>
         </thead>
         <tbody>
@@ -109,8 +117,14 @@
                 <td>{{ key.lng }}</td>
                 <td>{{ key.country }}</td>
                 <td>{{ key.city }}</td>
+                <td>
+                  <center><button type="submit" style="background-color:#f5f5f5;" name="search" class="btn btn-flat" ><i id="edit{{key.id}}" onclick='edit({{value.id}})' class="far fa-edit"></i></button></center>
+                </td>
+                <td>
+                  <center><button type="submit" style="background-color:#f5f5f5;" name="search" class="btn btn-flat" ><i id="remover{{key.id}}" onclick='remove({{value.id}})' class="far fa-trash-alt"></i></button></center>
+                </td>
             </tr>
-            {% endfor %}            
+            {% endfor %}
         <tbody>
         </table>
 

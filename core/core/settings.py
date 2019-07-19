@@ -28,6 +28,8 @@ SECRET_KEY = '*n3hoks6ece)zj)w95aoh=vzvf(2%e!uzws@s_28w60top2lwh'
 
 API_KEY = config.get('googleMapsConf', 'API_KEY')
 
+FONT_AWESOME_KEY=config.get('font-awesomeConf', 'KEY')
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
