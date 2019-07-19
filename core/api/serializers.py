@@ -11,9 +11,9 @@ class UserSerializer(serializers.ModelSerializer):
 class SpotsSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Spots
-		fields = ('name','is_active','is_deleted','updated_date')
+		fields = ('__all__')
 
 class ImagesSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Images
-		fields = ('url','spot','principalimage','is_active','is_deleted','updated_date')
+		fields = ('__all__')

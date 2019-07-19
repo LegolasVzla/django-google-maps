@@ -9,6 +9,7 @@ User = get_user_model()
 class Spots(models.Model):
 	name = models.CharField( max_length = 100)
 	country = models.CharField( max_length = 100)
+	country_code = models.CharField( max_length = 5)
 	city = models.CharField( max_length = 100)	
 	lat = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
 	lng = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
