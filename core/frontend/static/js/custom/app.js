@@ -1,7 +1,8 @@
 var spotsArray = [];
+var spotData = {};
 
-// Function to add spots
-function addSpots(location){
+// Function to select spots and get geolocation values
+function selectSpot(location){
 
 	var spot = new google.maps.Marker({
 		position: location,
@@ -21,6 +22,7 @@ function addSpots(location){
 	 },success: function showModal(data) {
 	  if (data.code==200) {
 
+	  	spotData = {};
 		new google.maps.Geocoder().geocode({'latLng' : location}, function(results, status) {
 		console.log(result, status);
 		    if (status == google.maps.GeocoderStatus.OK) {
@@ -59,13 +61,20 @@ function addSpots(location){
 		                }
 		            }
 
-		            console.log("City: " + city + ", City2: " + cityAlt + ", Country: " + country + ", Country Code: " + countryCode);
-
+		            //console.log("City: " + city + ", City2: " + cityAlt + ", Country: " + country + ", Country Code: " + countryCode);
 				    $("#city").val(city)
 				    $("#country").val(country)
 				    $("#countryCode").val(countryCode)
 				    $("#latitude").val(data.lat)
 				    $("#length").val(data.lng)
+
+					spotData["city"]=city;
+					spotData["country"]=country;
+					spotData["countryCode"]=countryCode;
+					spotData["latitude"]=data.lat;
+					spotData["length"]=data.lng;
+				    console.log("Spot data",spotData)
+
 		        }
 		    } else {
 		    	document.getElementById('error').innerHTML = "Error Status: " + status;
@@ -92,8 +101,45 @@ function addSpots(location){
 	spotsArray.push(spot);
 }
 
+// Function to select spots and get geolocation values
+function addSpot(){
+
+	console.log("***Spot data to save: ",$("#placeName").val());
+	if ($("#placeName").val()==undefined) {
+        alertify.error('Please provide a place name');
+		console.log("Name is required!")
+	    var delayInMilliseconds = 8000; // 2 second
+	    setTimeout(function() {
+	      location.reload(true);
+	    }, delayInMilliseconds);
+
+		return;
+	}else{
+		spotData["placeName"]=$("#placeName").val();
+
+		$.ajax({
+		    url:'/index/spotCreate/',
+		    type: 'POST',
+		    data: spotData,success: function showAnswer(data) {
+		      console.log('spot data save susscessfully',data);
+			  if (data.code==200) {
+			    console.log("success",data);
+		        alertify.success('Spot saved susscessfully');
+		        var delayInMilliseconds = 8000; // 2 second
+		        setTimeout(function() {
+		          location.reload(true);
+		        }, delayInMilliseconds);
+			  }else{
+			    console.log('Error');
+			  	spotData = {};
+			  }
+			}
+		})
+
+	}
 
 
+}
 
 // Set custom user spots
 function addCustomUSerSpots() {
@@ -149,7 +195,7 @@ function load_map(){
 	// Adding listener click
 	map.addListener('click',function(event){
 		//console.log(event);
-		addSpots(event.latLng);
+		selectSpot(event.latLng);
 	});
 
 	var spot = new google.maps.Marker({
