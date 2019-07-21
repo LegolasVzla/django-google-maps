@@ -33,47 +33,31 @@ class IndexView(APIView):
 
     def post(self, request, *args, **kwargs):
         print (request.POST)
+        #import pdb;pdb.set_trace() 
         data = {}
     
+        # User already clicked a point 
         if 'lat' and 'lng' in request.POST:
             data['code'] = status.HTTP_200_OK
             data['lat'] = request.POST['lat']
             data['lng'] = request.POST['lng']
-            
-        elif request.POST.get('placeName') is None:
-            print ("------SIN NOMBRE!!!!!!!!")
-            data['code'] = status.HTTP_400_BAD_REQUEST
 
+        # User is sending spot data to save
         elif 'latitude' and 'length' in request.POST:
-            print ("********",request.POST.get('placeName'))
-            #import pdb;pdb.set_trace() 
+            data['code'] = status.HTTP_200_OK
+            spotData = Spots(
+                user_id=1,
+                name=request.POST.get('placeName'),
+                city=request.POST['city'],
+                country=request.POST['country'],
+                country_code=request.POST['countryCode'],
+                lat=request.POST['length'],
+                lng=request.POST['latitude']
+                )
+            spotData.save()
 
-            if request.POST.get('placeName') is '':
-                print ("------2da vez SIN NOMBRE!!!!!!!!")
-                data['code'] = status.HTTP_400_BAD_REQUEST
-
-            elif request.POST.get('placeName') is not None:
-
-                data['code'] = status.HTTP_200_OK
-                spotData = Spots(
-                    user_id=1,
-                    name=request.POST.get('placeName'),
-                    city=request.POST['city'],
-                    country=request.POST['country'],
-                    country_code=request.POST['countryCode'],
-                    lat=request.POST['length'],
-                    lng=request.POST['latitude']
-                    )
-                spotData.save()
-    
         else:
-            if 'latitude' not in request.POST:
-                print ("------SIN COORDENADAS !!!!!!!!")
-                data['code'] = status.HTTP_406_NOT_ACCEPTABLE
-
-            else:
-                print ("------3ra VEZ SIN NOMBRE!!!!!!!!")
-                data['code'] = status.HTTP_400_BAD_REQUEST
+            data['code'] = status.HTTP_400_BAD_REQUEST
 
         return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder), content_type='application/json')        
         #return HttpResponse(request, 'index.html',data)

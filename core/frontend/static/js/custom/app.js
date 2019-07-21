@@ -1,5 +1,6 @@
-var spotsArray = [];
+var clickedSpotsArray = [];
 var spotData = {};
+var temporalLatLng = {}
 
 // Function to get place information from latitude and lenght
 function reverse_geocoding(location) {
@@ -64,51 +65,39 @@ function reverse_geocoding(location) {
 
 }
 
-function get_place_information() {
+// Function to set a position from click user interaction or default position
+function get_place_information(defaultLat,defaultLng) {
 
 	var latitude = null, length = null; 
 
 	// User already clicked a point
-	if(spotsArray.length > 0){
-		latitude = spotData["latitude"];
-		length = spotData["length"]
+	if(Object.keys(temporalLatLng).length > 0){
+		latitude = temporalLatLng["latitude"];
+		length = temporalLatLng["length"]
+		//console.log("I already choose a point",temporalLatLng)
 	}else{
+		//console.log("I didn't choose a point")
 		latitude = defaultLat;
 		length = defaultLng
 	}
-
-	// Get information about the current place
-	latlng = new google.maps.LatLng(latitude,length);
-	reverse_geocoding(latlng);
-
-}
-
-// Function to select spots and get geolocation values
-function selectSpot(location){
-
-	var spot = new google.maps.Marker({
-		position: location,
-		map: map,
-		// animation: google.maps.Animation.DROP
-	});
-
-	console.log("latitude: ", location.lat());
-	console.log("longitud: ", location.lng());
 
 	$.ajax({
 	    url:'/index/',
 	    type: 'POST',
 	    data: {
-	      lat: location.lat(),
-	      lng: location.lng()
+	      lat: latitude,
+	      lng: length
 	 },success: function showModal(data) {
 	  if (data.code==200) {
 
 	  	spotData = {};
-	  	reverse_geocoding(location);
 
-	    console.log("success",data);
+		// Get information about the current place
+		latlng = new google.maps.LatLng(latitude,length);
+	  	reverse_geocoding(latlng);
+	    //console.log("success",data);
 
+	    // Send data to the modal inputs
 	    $("#placeShowModal").click(function(e){
 	      console.log("close modal",data)
 	      e.preventDefault();
@@ -120,27 +109,36 @@ function selectSpot(location){
 	}
 	})
 
-	for (var i in spotsArray) {
-		spotsArray[i].setMap(null);
-	}
-
-	spotsArray.push(spot);
 }
 
-// Function to select spots and get geolocation values
+// Function to select a spot and get geolocation values
+function selectSpot(location){
+
+	temporalLatLng = {}
+	// Define a new marker in the clicked position
+	var spot = new google.maps.Marker({
+		position: location,
+		map: map,
+		// animation: google.maps.Animation.DROP
+	});
+
+	console.log("latitude: ", location.lat());
+	console.log("longitud: ", location.lng());
+	temporalLatLng["latitude"] = location.lat()
+	temporalLatLng["length"] = location.lng()
+
+	for (var i in clickedSpotsArray) {
+		clickedSpotsArray[i].setMap(null);
+	}
+
+	clickedSpotsArray.push(spot);
+}
+
+// Function to save the spot information
 function addSpot(defaultLat,defaultLng){
 
-
-
-	if ($("#placeName").val()==undefined) {
-	  	spotData = {};
-        alertify.error('1: Please provide a place name');
-		console.log("Name is required!")
-	    var delayInMilliseconds = 8000; // 2 second
-	    setTimeout(function() {
-	      location.reload(true);
-	    }, delayInMilliseconds);
-
+	if (jQuery.isEmptyObject($("#placeName").val())) {
+        alertify.error('Please provide a place name');
 		return;
 	}else{
 		spotData["placeName"]=$("#placeName").val();
@@ -149,34 +147,19 @@ function addSpot(defaultLat,defaultLng){
 		    url:'/index/spotCreate/',
 		    type: 'POST',
 		    data: spotData,success: function showAnswer(data) {
-		      console.log('spot data save susscessfully',data);
 			  if (data.code==200) {
-			    console.log("success",data);
+			    //console.log("success",data);
 		        alertify.success('Spot saved susscessfully');
-		        var delayInMilliseconds = 8000; // 2 second
+		        var delayInMilliseconds = 2000; // 2 second
 		        setTimeout(function() {
 		          location.reload(true);
 		        }, delayInMilliseconds);
-			  }else if (data.code==406) {
-	  	        alertify.error('Please set a place first');
-			    console.log('Error');
-			  	spotData = {};
-
 			  }else{
-	  	        alertify.error('2: Please provide a place name');
-		        var delayInMilliseconds = 8000; // 2 second
-		        setTimeout(function() {
-		          location.reload(true);
-		        }, delayInMilliseconds);
-			    console.log('Error');
-			  	spotData = {};
+			    console.log('Error, status:',data.code);
 			  }
 			}
 		})
-
 	}
-
-
 }
 
 // Set custom user spots
@@ -187,7 +170,7 @@ function addCustomUSerSpots() {
 	    type: 'poly'
 	};
 
-	var myCustomSpotsArray = []
+	var clickedSyCustomSpotsArray = []
 	var mySpotList = [{x:10.48218098377708,y:-66.86277687549591},{x:10.480189704841623,y:-66.86086177825928},{x:10.491156086040085,y:-66.86255693435669}];
 	var location;
 	var customUserSpot;
@@ -203,7 +186,7 @@ function addCustomUSerSpots() {
 		    map: map
 		});
 
-		myCustomSpotsArray.push(customUserSpot);
+		clickedSyCustomSpotsArray.push(customUserSpot);
 
 	}
 
@@ -228,7 +211,8 @@ function load_map(defaultLat,defaultLng){
 
 	map = new google.maps.Map(document.getElementById('gmap_canvas'), googleOptions)
 
-	addCustomUSerSpots();
+	// Do this when click on the Nearby buttom
+	// addCustomUSerSpots();
 
 	// Adding listener click
 	map.addListener('click',function(event){
@@ -245,7 +229,7 @@ function load_map(defaultLat,defaultLng){
 		title: "My Spot"
 	});
 
-	spotsArray.push(spot);
+	clickedSpotsArray.push(spot);
 
 }
 
