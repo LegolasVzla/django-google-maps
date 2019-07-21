@@ -34,18 +34,18 @@ class IndexView(APIView):
 class SpotView(APIView):
 
     def post(self, request, *args, **kwargs):
-        print (request.POST)
+        print ("POST",request.POST)
         #import pdb;pdb.set_trace() 
         data = {}
     
         # User already clicked a point 
-        if 'lat' and 'lng' in request.POST:
+        if request.POST['method'] == "get":
             data['code'] = status.HTTP_200_OK
             data['lat'] = request.POST['lat']
             data['lng'] = request.POST['lng']
 
-        # User is sending spot data to save
-        elif 'latitude' and 'length' in request.POST:
+        # User is sending spot data to create
+        elif request.POST['method'] == "create":
             data['code'] = status.HTTP_200_OK
             spotData = Spots(
                 user_id=1,
@@ -57,6 +57,14 @@ class SpotView(APIView):
                 lng=request.POST['latitude']
                 )
             spotData.save()
+
+        # An spot is requested by the user 
+        elif request.POST['method'] == "update":
+            response = requests.get("http://localhost:8000/api/spots/"+str(request.POST['spot_id']))
+            response = response.content.decode('utf-8')
+            json_response = json.loads(response)
+            data['spotName'] = json_response['name']
+            data['code'] = status.HTTP_200_OK
 
         else:
             data['code'] = status.HTTP_400_BAD_REQUEST

@@ -40,8 +40,9 @@
   </head>
   <body onload="load_map({{defaultLat}},{{defaultLng}})">
 
+    <!-- Add Spot -->
     <div class="container">
-      <div class="modal fade" id="placeShowModal" role="dialog">
+      <div class="modal fade" id="spotCreateShowModal" role="dialog">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
@@ -71,7 +72,7 @@
                     <input class="form-control" id="city" value="" type="text" readonly="">
                   </div>
                   <div class="modal-footer">
-                    <input class="btn btn-success" type="submit" onclick='addSpot({{defaultLat}},{{defaultLng}})' value="Guardar" />
+                    <input class="btn btn-success" type="submit" onclick='spotCreate({{defaultLat}},{{defaultLng}})' value="Guardar" />
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                   </div>
                 </fieldset>
@@ -81,7 +82,49 @@
         </div>
       </div>
     </div>
-  
+
+    <!-- Edit Spot -->
+    <div class="container">
+      <div class="modal fade" id="spotUpdateShowModal" role="dialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title"><b>Edit Place:</h4><label class="spotName"></label></b>
+            </div>
+            <div class="modal-body">
+              <form method="post">
+              {% csrf_token %}
+                <fieldset>
+                  <div class="form-group"><b>Name:</b>
+                    <input class="form-control" type="text" id="placeName" value="" autofocus="" required="">
+                  </div>
+                  <div class="form-group"><b>Latitude:</b>
+                    <input class="form-control" id="latitude" value="" readonly="">
+                  </div>
+                  <div class="form-group"><b>Length:</b>
+                    <input class="form-control" id="length" value="" readonly="">
+                  </div>
+                  <div class="form-group"><b>Country:</b>
+                    <input class="form-control" id="country" value="" type="text" readonly="">
+                  </div>
+                  <div class="form-group"><b>Country Code:</b>
+                    <input class="form-control" id="countryCode" value="" type="text" readonly="">
+                  </div>
+                  <div class="form-group"><b>City:</b>
+                    <input class="form-control" id="city" value="" type="text" readonly="">
+                  </div>
+                  <div class="modal-footer">
+                    <input class="btn btn-success" type="submit" onclick='spotUpdate({{defaultLat}},{{defaultLng}})' value="Guardar" />
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  </div>
+                </fieldset>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div id="tabs">
       <ul>
@@ -93,7 +136,7 @@
           <div class="container">
             <div id='gmap_canvas' style='height:350px;width:100%;'></div><br>
             <div class="btn-group">
-              <button type="submit" class="btn btn-primary" data-toggle="modal" onclick='get_place_information({{defaultLat}},{{defaultLng}})' data-target="#placeShowModal"><i class="fa fa-map-marker" title="Add Place" aria-hidden="true"></i> Add Place</button>
+              <button type="submit" class="btn btn-primary" data-toggle="modal" onclick='spotGetModal({{defaultLat}},{{defaultLng}})' data-target="#spotCreateShowModal"><i class="fa fa-map-marker" title="Add Place" aria-hidden="true"></i> Add Place</button>
             </div>
             <div class="btn-group">            
               <button type="submit" class="btn btn-info" data-toggle="modal" data-target="#placeNearBy"><i class="fas fa-location-arrow" title="Show me Nearby Places" aria-hidden="true"></i> Show me Nearby Places</button>
@@ -124,10 +167,10 @@
                 <td>{{ key.country }}</td>
                 <td>{{ key.city }}</td>
                 <td>
-                  <center><button type="submit" style="background-color:#f5f5f5;" name="search" class="btn btn-flat" ><i id="edit{{key.id}}" onclick='edit({{value.id}})' class="far fa-edit"></i></button></center>
+                  <center><button type="submit" class="btn btn-flat" style="background-color:#f5f5f5;" onclick='spotEditModal({{key.id}})' data-target="#spotUpdateShowModal"><i class="far fa-edit"></i></button></center>
                 </td>
                 <td>
-                  <center><button type="submit" style="background-color:#f5f5f5;" name="search" class="btn btn-flat" ><i id="remover{{key.id}}" onclick='remove({{value.id}})' class="far fa-trash-alt"></i></button></center>
+                  <center><button type="submit" class="btn btn-flat" style="background-color:#f5f5f5;" onclick='removeSpot({{key.id}})' ><i class="far fa-trash-alt"></i></button></center>
                 </td>
             </tr>
             {% endfor %}

@@ -66,7 +66,7 @@ function reverse_geocoding(location) {
 }
 
 // Function to set a position from click user interaction or default position
-function get_place_information(defaultLat,defaultLng) {
+function spotGetModal(defaultLat,defaultLng) {
 
 	var latitude = null, length = null; 
 
@@ -85,9 +85,10 @@ function get_place_information(defaultLat,defaultLng) {
 	    url:'/spot/',
 	    type: 'POST',
 	    data: {
+	      method: "get",
 	      lat: latitude,
 	      lng: length
-	 },success: function showModal(data) {
+	 },success: function showAnswer(data) {
 	  if (data.code==200) {
 
 	  	spotData = {};
@@ -98,10 +99,10 @@ function get_place_information(defaultLat,defaultLng) {
 	    //console.log("success",data);
 
 	    // Send data to the modal inputs
-	    $("#placeShowModal").click(function(e){
+	    $("#spotCreateShowModal").click(function(e){
 	      console.log("close modal",data)
 	      e.preventDefault();
-	     // $("#placeShowModal").modal('show');
+	     // $("#spotCreateShowModal").modal('show');
 	    });
 	  }else{
 	    console.log('Error to load modal');
@@ -111,8 +112,38 @@ function get_place_information(defaultLat,defaultLng) {
 
 }
 
+// Function to get the spot Id requested by the user and return the spot information
+function spotEditModal(spotId) {
+
+	console.log("spot edit:",spotId)
+	$.ajax({
+	    url:'/spot/update/',
+	    type: 'POST',
+	    data: {
+	      method: "update",
+	      spot_id: spotId
+	 },success: function showAnswer(data) {
+	  if (data.code==200) {
+
+	    $(".spotName").text(data.spotName)
+
+	    // Send data to the modal inputs
+	    $("#spotUpdateShowModal").click(function(e){
+	      console.log("close modal",data)
+	      e.preventDefault();
+	     // $("#spotUpdateShowModal").modal('show');
+	    });
+	  }else{
+	    console.log('Error to load modal2');
+	  }
+	}
+	})
+
+}
+
+
 // Function to select a spot and get geolocation values
-function selectSpot(location){
+function spotSelect(location){
 
 	temporalLatLng = {}
 	// Define a new marker in the clicked position
@@ -135,7 +166,7 @@ function selectSpot(location){
 }
 
 // Function to save the spot information
-function addSpot(defaultLat,defaultLng){
+function spotCreate(defaultLat,defaultLng){
 
 	if (jQuery.isEmptyObject($("#placeName").val())) {
         alertify.error('Please provide a place name');
@@ -143,6 +174,7 @@ function addSpot(defaultLat,defaultLng){
 	}else{
 		spotData["placeName"]=$("#placeName").val();
 
+		spotData['method'] = "create"
 		$.ajax({
 		    url:'/spot/create/',
 		    type: 'POST',
@@ -218,7 +250,7 @@ function load_map(defaultLat,defaultLng){
 	map.addListener('click',function(event){
 		//console.log(event);
 		console.log("HE LLAMADO A SELECT SPOT!!!!",event.latLng)
-		selectSpot(event.latLng);
+		spotSelect(event.latLng);
 	});
 
 	var spot = new google.maps.Marker({
