@@ -5,7 +5,7 @@ from django.http import (HttpResponse, HttpResponseForbidden,
 #from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.views import APIView
 #from rest_framework.permissions import IsAuthenticated
-from core.settings import API_KEY
+from core.settings import API_KEY,FONT_AWESOME_KEY,defaultLat,defaultLng
 from rest_framework import status
 from api.models import (Spots)
 import json
@@ -20,6 +20,10 @@ class IndexView(APIView):
         response = response.content.decode('utf-8')
         json_response = json.loads(response)
         content['api_key'] = API_KEY
+        content['fontawesome_key'] = FONT_AWESOME_KEY
+        content['defaultLat'] = defaultLat 
+        content['defaultLng'] = defaultLng         
+
         try:
             content['data'] = json_response
         except Exception as e:
@@ -36,8 +40,20 @@ class IndexView(APIView):
             data['lat'] = request.POST['lat']
             data['lng'] = request.POST['lng']
             
+        elif request.POST.get('placeName') is None:
+            print ("------SIN NOMBRE!!!!!!!!")
+            data['code'] = status.HTTP_400_BAD_REQUEST
+
         elif 'latitude' and 'length' in request.POST:
-            try:
+            print ("********",request.POST.get('placeName'))
+            #import pdb;pdb.set_trace() 
+
+            if request.POST.get('placeName') is '':
+                print ("------2da vez SIN NOMBRE!!!!!!!!")
+                data['code'] = status.HTTP_400_BAD_REQUEST
+
+            elif request.POST.get('placeName') is not None:
+
                 data['code'] = status.HTTP_200_OK
                 spotData = Spots(
                     user_id=1,
@@ -49,11 +65,15 @@ class IndexView(APIView):
                     lng=request.POST['latitude']
                     )
                 spotData.save()
-            except Exception as e:
-                print ("ERROR AL GUARDAR---------",e)
-
+    
         else:
-            data['code'] = status.HTTP_400_BAD_REQUEST
+            if 'latitude' not in request.POST:
+                print ("------SIN COORDENADAS !!!!!!!!")
+                data['code'] = status.HTTP_406_NOT_ACCEPTABLE
+
+            else:
+                print ("------3ra VEZ SIN NOMBRE!!!!!!!!")
+                data['code'] = status.HTTP_400_BAD_REQUEST
 
         return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder), content_type='application/json')        
         #return HttpResponse(request, 'index.html',data)

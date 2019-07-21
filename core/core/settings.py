@@ -26,7 +26,15 @@ config.read(BASE_DIR + '/settings.ini')
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '*n3hoks6ece)zj)w95aoh=vzvf(2%e!uzws@s_28w60top2lwh'
 
+# Google Maps API Config
 API_KEY = config.get('googleMapsConf', 'API_KEY')
+defaultLat = config.get('googleMapsConf', 'defaultLat')
+defaultLng = config.get('googleMapsConf', 'defaultLng')
+
+FONT_AWESOME_KEY=config.get('font-awesomeConf', 'KEY')
+
+FONT_AWESOME_KEY=config.get('font-awesomeConf', 'KEY')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

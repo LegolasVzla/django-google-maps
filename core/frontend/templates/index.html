@@ -26,6 +26,10 @@
     <!-- include a theme -->
     <link rel="stylesheet" href="{% static 'css/alertifyjs/themes/default.min.css' %} "/>
 
+    <!-- Font Awesome Icons -->
+    <script src="https://kit.fontawesome.com/{{fontawesome_key}}.js"></script>
+
+
     <!-- Google Maps -->
     <style media="screen">
       #gmap_canvas img{
@@ -35,7 +39,7 @@
     </style>
     <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}" async defer></script>
   </head>
-  <body onload="load_map()">
+  <body onload="load_map({{defaultLat}},{{defaultLng}})">
 
     <div class="container">
       <div class="modal fade" id="placeShowModal" role="dialog">
@@ -50,7 +54,7 @@
               {% csrf_token %}
                 <fieldset>
                   <div class="form-group"><b>Name:</b>
-                    <input class="form-control" name="nombre" type="text" id="placeName" value="" autofocus="" required="">
+                    <input class="form-control" type="text" id="placeName" value="" autofocus="" required="">
                   </div>
                   <div class="form-group"><b>Latitude:</b>
                     <input class="form-control" id="latitude" value="" readonly="">
@@ -68,7 +72,7 @@
                     <input class="form-control" id="city" value="" type="text" readonly="">
                   </div>
                   <div class="modal-footer">
-                    <input class="btn btn-success" type="submit" onclick='addSpot()' value="Guardar" />
+                    <input class="btn btn-success" type="submit" onclick='addSpot({{defaultLat}},{{defaultLng}})' value="Guardar" />
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                   </div>
                 </fieldset>
@@ -88,9 +92,12 @@
       <div id="tabs-1">
           <p>Basic example of how to use Google Maps API</p>
           <div class="container">
-            <div id='gmap_canvas' style='height:350px;width:100%;'></div>
+            <div id='gmap_canvas' style='height:350px;width:100%;'></div><br>
             <div class="btn-group">
-              <button type="submit" class="btn btn-primary" data-placeName="" data-latitude="" name="carpetas" data-toggle="modal" data-target="#placeShowModal" ><i class="fa fa-map-marker" title="Add Place" aria-hidden="true"></i>Add Place</button>
+              <button type="submit" class="btn btn-primary" data-toggle="modal" onclick='get_place_information()' data-target="#placeShowModal"><i class="fa fa-map-marker" title="Add Place" aria-hidden="true"></i> Add Place</button>
+            </div>
+            <div class="btn-group">            
+              <button type="submit" class="btn btn-info" data-toggle="modal" data-target="#placeNearBy"><i class="fas fa-location-arrow" title="Show me Nearby Places" aria-hidden="true"></i> Show me Nearby Places</button>
             </div>
           </div>
       </div>
@@ -104,6 +111,8 @@
                 <th>Long</th>
                 <th>Country</th>
                 <th>City</th>
+                <th>Edit</th>
+                <th>Delete</th>                
             </tr>
         </thead>
         <tbody>
@@ -115,8 +124,14 @@
                 <td>{{ key.lng }}</td>
                 <td>{{ key.country }}</td>
                 <td>{{ key.city }}</td>
+                <td>
+                  <center><button type="submit" style="background-color:#f5f5f5;" name="search" class="btn btn-flat" ><i id="edit{{key.id}}" onclick='edit({{value.id}})' class="far fa-edit"></i></button></center>
+                </td>
+                <td>
+                  <center><button type="submit" style="background-color:#f5f5f5;" name="search" class="btn btn-flat" ><i id="remover{{key.id}}" onclick='remove({{value.id}})' class="far fa-trash-alt"></i></button></center>
+                </td>
             </tr>
-            {% endfor %}            
+            {% endfor %}
         <tbody>
         </table>
 
