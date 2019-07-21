@@ -170,7 +170,7 @@
                   <center><button type="submit" class="btn btn-flat" style="background-color:#f5f5f5;" onclick='spotEditModal({{key.id}})' data-target="#spotUpdateShowModal"><i class="far fa-edit"></i></button></center>
                 </td>
                 <td>
-                  <center><button type="submit" class="btn btn-flat" style="background-color:#f5f5f5;" onclick='removeSpot({{key.id}})' ><i class="far fa-trash-alt"></i></button></center>
+                  <center><button type="submit" data-spotId="{{key.id}}" class="btn btn-flat" style="background-color:#f5f5f5;" onclick='spotRemoveConfirmation({{key.id}})' ><i class="far fa-trash-alt"></i></button></center>
                 </td>
             </tr>
             {% endfor %}

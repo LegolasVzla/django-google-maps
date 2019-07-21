@@ -35,7 +35,6 @@ class SpotView(APIView):
 
     def post(self, request, *args, **kwargs):
         print ("POST",request.POST)
-        #import pdb;pdb.set_trace() 
         data = {}
     
         # User already clicked a point 
@@ -69,5 +68,21 @@ class SpotView(APIView):
         else:
             data['code'] = status.HTTP_400_BAD_REQUEST
 
-        return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder), content_type='application/json')        
-        #return HttpResponse(request, 'index.html',data)
+        return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder), content_type='application/json')
+
+    def put(self, request, *args, **kwargs):
+        data = {}
+
+        # An spot is requested by the user to remove it 
+        if request.POST['method'] == "delete":
+            spot = Spots.objects.get(id=request.POST.get('spot_id'))
+            spot.is_active = False
+            spot.is_deleted = True
+            spot.save()
+            data['placeName'] = spot.name
+            data['code'] = status.HTTP_200_OK
+
+        else:
+            data['code'] = status.HTTP_400_BAD_REQUEST
+
+        return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder), content_type='application/json')

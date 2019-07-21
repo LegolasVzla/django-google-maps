@@ -141,6 +141,37 @@ function spotEditModal(spotId) {
 
 }
 
+// Function to remove the spot requested by the user
+function spotRemoveConfirmation(spotId){
+
+  var r = confirm("¿Are you sure to remove this place?");
+  if (r == true) {
+    console.log('');
+  } else {
+    return;
+  }
+  $.ajax({
+    url:'/spot/delete',
+    type: 'PUT',
+    data: {
+      method: "delete",
+      spot_id: spotId,
+  },
+    success: function showAnswer(data) {
+      if (data.code==200) {
+
+        alertify.success("The spot: '" +data.placeName+ "' was deleted susscessfully");
+        var delayInMilliseconds = 2000; // 2 second
+        setTimeout(function() {
+          location.reload(true);
+        }, delayInMilliseconds);
+      }else{
+        alertify.error('An error happened removing the spot, please try again.');
+      }
+
+    }
+  });
+};
 
 // Function to select a spot and get geolocation values
 function spotSelect(location){
