@@ -31,6 +31,8 @@ class IndexView(APIView):
         #print(content)
         return render(request, 'index.html',content)
 
+class SpotView(APIView):
+
     def post(self, request, *args, **kwargs):
         print (request.POST)
         #import pdb;pdb.set_trace() 

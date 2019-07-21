@@ -82,7 +82,7 @@ function get_place_information(defaultLat,defaultLng) {
 	}
 
 	$.ajax({
-	    url:'/index/',
+	    url:'/spot/',
 	    type: 'POST',
 	    data: {
 	      lat: latitude,
@@ -144,7 +144,7 @@ function addSpot(defaultLat,defaultLng){
 		spotData["placeName"]=$("#placeName").val();
 
 		$.ajax({
-		    url:'/index/spotCreate/',
+		    url:'/spot/create/',
 		    type: 'POST',
 		    data: spotData,success: function showAnswer(data) {
 			  if (data.code==200) {

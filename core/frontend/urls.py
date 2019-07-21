@@ -6,7 +6,10 @@ from frontend import views
 
 urlpatterns = [
     url(r'^index/', views.IndexView.as_view(), name='index'),
-    url(r'^index/spotCreate/', views.IndexView.as_view(), name='spotCreate')    
+    url(r'^spot/', views.SpotView.as_view(), name='spot'),
+    url(r'^spot/create/', views.SpotView.as_view(), name='spotCreate'),
+    url(r'^spot/update/', views.SpotView.as_view(), name='spotUpdate'),
+    url(r'^spot/delete/', views.SpotView.as_view(), name='spotDelete')    
 #    url(r'^map/', views.MapView.as_view(), name='map')
 ]
 
