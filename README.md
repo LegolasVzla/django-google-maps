@@ -40,7 +40,7 @@ In "django-google-maps/core/" path, create logs folder:
 Create a **settings.ini** file, with the structure as below:
 
 	[postgresdbConf]
-	DB_ENGINE=django.db.backends.postgresql
+	DB_ENGINE=django.contrib.gis.db.backends.postgis
 	DB_NAME=dbname
 	DB_USER=user
 	DB_PASS=password
@@ -49,16 +49,14 @@ Create a **settings.ini** file, with the structure as below:
 
 	[googleMapsConf]
  	API_KEY=yourGoogleAPIKey
+	defaultLat=<Your_default_latitude>
+ 	defaultLng=<Your_default_lingitude>
 
 By default, DB_HOST and DB_PORT in PostgreSQL are localhost/5432.
 
 Now, in your terminal, login as a postgres user:
 
  	sudo -i -u postgres
-
-Create PostGIS extension:
-
- 	psql -d yourdatabase -c "CREATE EXTENSION postgis;"
 
 And execute the near by function:
 
