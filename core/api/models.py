@@ -2,8 +2,20 @@ from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
+
+from django.contrib.gis.db import models
+from django.contrib.postgres.operations import CreateExtension
+from django.db import migrations
+
 #from datetime import datetime
 User = get_user_model()
+
+
+class Migration(migrations.Migration):
+
+    operations = [
+        CreateExtension('postgis'),
+    ]
 
 # Create your models here.
 class Spots(models.Model):
@@ -13,6 +25,7 @@ class Spots(models.Model):
 	city = models.CharField( max_length = 100)	
 	lat = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
 	lng = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
+	geom = models.GeometryField(srid=4326,blank=True,null=True)
 	user = models.ForeignKey(User,related_name='spots_user_id',on_delete=models.CASCADE)
 	is_active = models.BooleanField(default=True)
 	is_deleted = models.BooleanField(default=False)
