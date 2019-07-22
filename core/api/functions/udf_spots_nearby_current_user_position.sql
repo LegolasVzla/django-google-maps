@@ -18,6 +18,21 @@ DECLARE
     SELECT udf_spots_nearby_current_user_position(1,-80.1358946,25.7697018);
   */
 
+  -- Prevention SQL injection
+  IF NOT EXISTS(
+    SELECT
+      id
+    FROM
+      public.users_customuser
+    WHERE
+      id = param_user_id
+    ) THEN
+
+    RAISE NOTICE 'User % not found',param_user_id;
+    RETURN param_json_returning;
+
+  END IF;
+
   -- Create a temporary table to store nearby places
   CREATE TEMPORARY TABLE IF NOT EXISTS temporal_spots_table (
         id integer,
@@ -84,7 +99,7 @@ DECLARE
       temporal_spots_table
     ) THEN
 
-      RAISE NOTICE 'Were found places near where you are';
+      --RAISE NOTICE 'Were found places near where you are';
 
       SELECT JSON_AGG(a.*) INTO STRICT json_returning
       FROM (
@@ -103,7 +118,7 @@ DECLARE
 
   ELSE
 
-    RAISE NOTICE 'Were not found places near where you are';
+    --RAISE NOTICE 'Were not found places near where you are';
 
     json_returning  = '[{
         "spotId": null,

@@ -1,7 +1,7 @@
 -- DROP FUNCTION IF EXISTS public.udf_images_get(integer);
 CREATE OR REPLACE FUNCTION public.udf_images_get(
     param_spot_id integer)
-  RETURNS character varying AS
+  RETURNS json AS
 $BODY$
 
 DECLARE
@@ -18,8 +18,8 @@ DECLARE
   IF EXISTS (
     SELECT
       si.id
-    FROM public.site_imageses si
-      INNER JOIN public.spots s
+    FROM public.api_images si
+      INNER JOIN public.api_spots s
         ON si.spot_id = s.id
         AND
         si.is_active
@@ -64,11 +64,11 @@ DECLARE
 
   ELSE
 
-    RAISE NOTICE 'Were not found images of the current place';
+    --RAISE NOTICE 'Were not found images of the current place';
 
   END IF;
 
-    RETURN '"imageList":' || json_returning;
+    RETURN json_returning;
 
 END;
 

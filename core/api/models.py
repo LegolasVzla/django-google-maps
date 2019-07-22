@@ -26,6 +26,7 @@ class Spots(models.Model):
 	lat = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
 	lng = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
 	geom = models.GeometryField(srid=4326,blank=True,null=True)
+	position = models.PointField(null=True, blank=True)	
 	user = models.ForeignKey(User,related_name='spots_user_id',on_delete=models.CASCADE)
 	is_active = models.BooleanField(default=True)
 	is_deleted = models.BooleanField(default=False)
