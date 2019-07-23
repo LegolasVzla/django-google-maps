@@ -8,6 +8,11 @@ from rest_framework.views import APIView
 from core.settings import API_KEY,FONT_AWESOME_KEY,defaultLat,defaultLng
 from rest_framework import status
 from api.models import (Spots)
+
+from django.contrib.gis.geos import GEOSGeometry
+from django.contrib.gis.measure import Distance
+from decimal import Decimal
+
 import json
 import requests
 
@@ -65,7 +70,18 @@ class SpotView(APIView):
             data['spotName'] = json_response['name']
             data['code'] = status.HTTP_200_OK
 
-        else:
+        # User is request nearby places
+        elif request.POST['method'] == "get_nearby":
+            data['code'] = status.HTTP_200_OK
+            current_latitude = Decimal(request.POST['lat'])
+            current_longitude = Decimal(request.POST['lng'])
+            point = GEOSGeometry("POINT({} {})".format(current_longitude, current_latitude))
+            max_distance=5
+            spots_in_range = Spots.objects.filter(position__distance_lte=(point,Distance(km=max_distance)))
+            #import pdb;pdb.set_trace()
+            data['nearby'] = spots_in_range
+
+        else:            
             data['code'] = status.HTTP_400_BAD_REQUEST
 
         return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder), content_type='application/json')

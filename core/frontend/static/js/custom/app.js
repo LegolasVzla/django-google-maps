@@ -226,33 +226,57 @@ function spotCreate(defaultLat,defaultLng){
 }
 
 // Set custom user spots
-function addCustomUSerSpots() {
-	
-	var shape = {
-	    coord: [1, 1, 1, 20, 18, 20, 18 , 1],
-	    type: 'poly'
-	};
+function spotNearBy(latitude,longitude) {
 
-	var clickedSyCustomSpotsArray = []
-	var mySpotList = [{x:10.48218098377708,y:-66.86277687549591},{x:10.480189704841623,y:-66.86086177825928},{x:10.491156086040085,y:-66.86255693435669}];
-	var location;
-	var customUserSpot;
+	console.log("coordinates:",latitude,longitude)
+	$.ajax({
+	    url:'/spot/nearby/',
+	    type: 'POST',
+	    data: {
+	      method: "get_nearby",
+	      lat: latitude,
+	      lng: longitude
+	 },success: function showAnswer(data) {
+	  if (data.code==200) {
 
-	for (var i=0; i<mySpotList.length; ++i) {
+		console.log("array of nearby places:",data.nearby)
 
-		location = new google.maps.LatLng(mySpotList[i].x,mySpotList[i].y);
+        var delayInMilliseconds = 2000; // 2 second
+        setTimeout(function() {
+          location.reload(true);
+        }, delayInMilliseconds);
 
-		customUserSpot = new google.maps.Marker({
-		    icon: '/static/media/place_icon.png',
-		    shape: shape,
-		    position: location,
-		    map: map
-		});
+		var shape = {
+		    coord: [1, 1, 1, 20, 18, 20, 18 , 1],
+		    type: 'poly'
+		};
 
-		clickedSyCustomSpotsArray.push(customUserSpot);
+		var clickedSyCustomSpotsArray = []
+		var mySpotList = [{x:10.48218098377708,y:-66.86277687549591},{x:10.480189704841623,y:-66.86086177825928},{x:10.491156086040085,y:-66.86255693435669}];
+		var location;
+		var customUserSpot;
 
+		for (var i=0; i<mySpotList.length; ++i) {
+
+			location = new google.maps.LatLng(mySpotList[i].x,mySpotList[i].y);
+
+			customUserSpot = new google.maps.Marker({
+			    icon: '/static/media/place_icon.png',
+			    shape: shape,
+			    position: location,
+			    map: map
+			});
+
+			clickedSyCustomSpotsArray.push(customUserSpot);
+
+		}
+
+	  }else{
+	    console.log('Error to load modal2');
+	  }
 	}
-
+	})
+	
 }
 
 // Call when you APP gets the lat and long of the user
