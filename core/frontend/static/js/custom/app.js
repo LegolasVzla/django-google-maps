@@ -268,7 +268,7 @@ function spotNearBy(latitude,longitude) {
 		}
 
 	  }else{
-	    console.log('Error to load modal');
+        alertify.error('Not found own nearby places');
 	  }
 	}
 	})

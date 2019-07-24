@@ -74,7 +74,6 @@ class SpotView(APIView):
 
         # User is request nearby places
         elif request.POST['method'] == "get_nearby":
-            data['code'] = status.HTTP_200_OK
                         
             max_distance=5  # 5 km by default, this could be customizable
             current_latitude = Decimal(request.POST['lat'])
@@ -83,14 +82,21 @@ class SpotView(APIView):
             # Transform current latitude and longitude of the user, in a geometry point
             point_of_user = GEOSGeometry("POINT({} {})".format(current_longitude, current_latitude))
             
-            # Get all the nearby places within a 5 km that match wit Spots of the current user
-            spots_in_range = Spots.objects.filter(position__distance_lte=(point_of_user,Distance(km=max_distance)),is_active=True).values('lat','lng').order_by('id')
-            print(spots_in_range)
+            if(Spots.objects.filter(position__distance_lte=(point_of_user,Distance(km=max_distance)),is_active=True,is_deleted=False).exists()):
 
-            nearby_list = []
-            for i in spots_in_range:
-                nearby_list.append(i)
-            data['nearby'] = nearby_list
+                # Get all the nearby places within a 5 km that match wit Spots of the current user
+                spots_in_range = Spots.objects.filter(position__distance_lte=(point_of_user,Distance(km=max_distance)),is_active=True,is_deleted=False).values('lat','lng').order_by('id')
+
+                data['code'] = status.HTTP_200_OK
+
+                nearby_list = []
+                for i in spots_in_range:
+                    nearby_list.append(i)
+                data['nearby'] = nearby_list
+
+            else:
+
+                data['code'] = status.HTTP_204_NO_CONTENT
 
         else:            
             data['code'] = status.HTTP_400_BAD_REQUEST
