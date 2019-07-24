@@ -1,6 +1,8 @@
 # django-google-maps
 Basic example of how to use google maps with django
 
+![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/frontend/static/media/app_image.jpeg "App Image")
+
 ## Technologies
 - [Django REST framework](https://www.django-rest-framework.org/) is a powerful and flexible toolkit for building Web APIs.
 
@@ -54,14 +56,6 @@ Create a **settings.ini** file, with the structure as below:
 
 By default, DB_HOST and DB_PORT in PostgreSQL are localhost/5432.
 
-Now, in your terminal, login as a postgres user:
-
- 	sudo -i -u postgres
-
-And execute the near by function:
-
- 	psql -U postgres -d yourdatabase -a -f ./api/functions/udf_spots_nearby_current_user_position.sql
-
 Then, run the migrations:
 
 	python manage.py makemigrations
@@ -75,6 +69,23 @@ And finally, run the server:
 You could see the home page in:
 
 	http://127.0.0.1:8000/index/
+
+The map will be setting in the defaultLat and defaultLng position.
+
+## Models
+
+- Spots: table to store places of the users. This table contains a position (PostGIS geometry) column that works to store information of latitude and longitude in WGS 84 format.
+
+## Actions
+
+1. Add a custom place (CREATE): in "GoogleMaps" tab, you can create a new spot doing click in a position of the map and then doing click in "Add a Place" buttom, fill up the form and save your spot.
+
+2. See spots details (READ): in "My Spot List" tab, you can see all the details of your spot list. 
+
+3. Remove a place (DELETE): in "My Spot List" tab, you can delete an spot in the garbage icon.
+
+4. Show nearby places: in "GoogleMaps" tab, you can display nearby places from your current position wihint 5 kilometers of distance. The map will show your nearby places with the icon below:
+![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/frontend/static/media/place_icon.png "Custom Spot")
 
 ## Contributions
 ------------------------
