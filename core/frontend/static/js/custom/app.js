@@ -239,12 +239,8 @@ function spotNearBy(latitude,longitude) {
 	 },success: function showAnswer(data) {
 	  if (data.code==200) {
 
-		console.log("array of nearby places:",data.nearby)
-
+		// console.log("array of nearby places:",data.nearby)
         var delayInMilliseconds = 2000; // 2 second
-        setTimeout(function() {
-          location.reload(true);
-        }, delayInMilliseconds);
 
 		var shape = {
 		    coord: [1, 1, 1, 20, 18, 20, 18 , 1],
@@ -252,13 +248,14 @@ function spotNearBy(latitude,longitude) {
 		};
 
 		var clickedSyCustomSpotsArray = []
-		var mySpotList = [{x:10.48218098377708,y:-66.86277687549591},{x:10.480189704841623,y:-66.86086177825928},{x:10.491156086040085,y:-66.86255693435669}];
+
+		var mySpotList = data.nearby
 		var location;
 		var customUserSpot;
 
 		for (var i=0; i<mySpotList.length; ++i) {
 
-			location = new google.maps.LatLng(mySpotList[i].x,mySpotList[i].y);
+			location = new google.maps.LatLng(mySpotList[i].lat,mySpotList[i].lng);
 
 			customUserSpot = new google.maps.Marker({
 			    icon: '/static/media/place_icon.png',
@@ -268,11 +265,10 @@ function spotNearBy(latitude,longitude) {
 			});
 
 			clickedSyCustomSpotsArray.push(customUserSpot);
-
 		}
 
 	  }else{
-	    console.log('Error to load modal2');
+	    console.log('Error to load modal');
 	  }
 	}
 	})
@@ -281,6 +277,7 @@ function spotNearBy(latitude,longitude) {
 
 // Call when you APP gets the lat and long of the user
 function load_map(defaultLat,defaultLng){
+	console.log(defaultLat,defaultLng)
 
 	var googleOptions = {
 		zoom:15,
@@ -297,9 +294,6 @@ function load_map(defaultLat,defaultLng){
 	};
 
 	map = new google.maps.Map(document.getElementById('gmap_canvas'), googleOptions)
-
-	// Do this when click on the Nearby buttom
-	// addCustomUSerSpots();
 
 	// Adding listener click
 	map.addListener('click',function(event){
