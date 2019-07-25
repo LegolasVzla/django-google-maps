@@ -87,7 +87,6 @@ class SpotView(APIView):
 
         # User is request nearby places
         elif request.POST['method'] == "get_nearby":
-                        
             max_distance=5  # 5 km by default, this could be customizable
             current_latitude = Decimal(request.POST['lat'])
             current_longitude = Decimal(request.POST['lng'])

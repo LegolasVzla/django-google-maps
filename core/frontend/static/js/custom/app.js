@@ -1,12 +1,14 @@
 var clickedSpotsArray = [];
 var spotData = {};
 var temporalLatLng = {}
+var first_click = false;
+var location_aux = null;
 
 // Function to get place information from latitude and lenght
 function reverse_geocoding(location) {
 
 	new google.maps.Geocoder().geocode({'latLng' : location}, function(results, status) {
-	//console.log(results, status);
+	console.log(results, status);
 	    if (status == google.maps.GeocoderStatus.OK) {
 	        if (results[1]) {
 	            var country = null, countryCode = null, city = null, cityAlt = null;
@@ -227,6 +229,9 @@ function spotSelect(location){
 	}
 
 	clickedSpotsArray.push(spot);
+
+	location_aux = location;
+	first_click = true;
 }
 
 // Function to save the spot information
@@ -261,14 +266,24 @@ function spotCreate(defaultLat,defaultLng){
 // Set custom user spots
 function spotNearBy(latitude,longitude) {
 
-	console.log("coordinates:",latitude,longitude)
+	var latitude_aux = null, length_aux = null;
+
+	if (first_click) {
+		latitude_aux = location_aux.lat()
+		length_aux = location_aux.lng()
+	}else{
+		latitude_aux = latitude
+		length_aux = longitude
+	}
+	//console.log("coordinates:",latitude_aux,length_aux)	
+
 	$.ajax({
 	    url:'/spot/nearby/',
 	    type: 'POST',
 	    data: {
 	      method: "get_nearby",
-	      lat: latitude,
-	      lng: longitude
+	      lat: latitude_aux,
+	      lng: length_aux
 	 },success: function showAnswer(data) {
 	  if (data.code==200) {
 
