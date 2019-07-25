@@ -39,7 +39,7 @@ class IndexView(APIView):
 class SpotView(APIView):
 
     def post(self, request, *args, **kwargs):
-        #print ("POST",request.POST)
+        print ("POST",request.POST)
         data = {}
     
         # User already clicked a point 
@@ -64,12 +64,25 @@ class SpotView(APIView):
                 )
             spotData.save()
 
-        # A spot is requested by the user 
-        elif request.POST['method'] == "update":
+        # A spot is requested by the user to attempt edition
+        elif request.POST['method'] == "editSpotModal":
             response = requests.get("http://localhost:8000/api/spots/"+str(request.POST['spot_id']))
             response = response.content.decode('utf-8')
             json_response = json.loads(response)
+            data['id'] = json_response['id']
             data['spotName'] = json_response['name']
+            data['country'] = json_response['country']
+            data['country_code'] = json_response['country_code']
+            data['city'] = json_response['city']
+            data['lat'] = json_response['lat']
+            data['lng'] = json_response['lng']
+            data['code'] = status.HTTP_200_OK
+
+        # User is sending spot data to update
+        elif request.POST['method'] == "update":
+            spot = Spots.objects.get(id=request.POST['spotId'])
+            spot.name = request.POST['name']
+            spot.save()
             data['code'] = status.HTTP_200_OK
 
         # User is request nearby places

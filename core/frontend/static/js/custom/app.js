@@ -89,25 +89,26 @@ function spotGetModal(defaultLat,defaultLng) {
 	      lat: latitude,
 	      lng: length
 	 },success: function showAnswer(data) {
-	  if (data.code==200) {
+	  	if (data.code==200) {
 
-	  	spotData = {};
+		  	spotData = {};
 
-		// Get information about the current place
-		latlng = new google.maps.LatLng(latitude,length);
-	  	reverse_geocoding(latlng);
-	    //console.log("success",data);
+			// Get information about the current place
+			latlng = new google.maps.LatLng(latitude,length);
+		  	reverse_geocoding(latlng);
+		    //console.log("success",data);
 
-	    // Send data to the modal inputs
-	    $("#spotCreateShowModal").click(function(e){
-	      console.log("close modal",data)
-	      e.preventDefault();
-	     // $("#spotCreateShowModal").modal('show');
-	    });
-	  }else{
-	    console.log('Error to load modal');
-	  }
-	}
+		    // Send data to the modal inputs
+		    $("#spotCreateShowModal").click(function(e){
+
+		      console.log("close modal",data)
+		      e.preventDefault();
+		     // $("#spotCreateShowModal").modal('show');
+		    });
+		}else{
+		    console.log('Error to load modal');
+		  }
+		}
 	})
 
 }
@@ -115,31 +116,63 @@ function spotGetModal(defaultLat,defaultLng) {
 // Function to get the spot Id requested by the user and return the spot information
 function spotEditModal(spotId) {
 
-	console.log("spot edit:",spotId)
 	$.ajax({
-	    url:'/spot/update/',
+	    url:'/spot/editSpotModal/',
 	    type: 'POST',
 	    data: {
-	      method: "update",
+	      method: "editSpotModal",
 	      spot_id: spotId
 	 },success: function showAnswer(data) {
-	  if (data.code==200) {
+	  	if (data.code==200) {
 
-	    $(".spotName").text(data.spotName)
+		    // Send data to the modal inputs
+		    $(".spotName").text(data.spotName)
+		    $("#placeNameToEdit").val(data.spotName)
+		    $("#cityToEdit").val(data.city)
+		    $("#countryToEdit").val(data.country)
+		    $("#countryCodeToEdit").val(data.country_code)
+		    $("#latitudeToEdit").val(data.lat)
+		    $("#lengthToEdit").val(data.lng)
+		    $(".spotIdToEdit").text(data.id)
 
-	    // Send data to the modal inputs
-	    $("#spotUpdateShowModal").click(function(e){
-	      console.log("close modal",data)
-	      e.preventDefault();
-	     // $("#spotUpdateShowModal").modal('show');
-	    });
-	  }else{
-	    console.log('Error to load modal2');
-	  }
-	}
+		}else{
+		    console.log('Error to load modal');
+		  }
+		}
 	})
-
 }
+
+// Function to edit the spot information
+function spotUpdate(spotIdToEdit){
+
+	console.log($('#spotUpdateShowModal'+spotIdToEdit).attr("data-spotId"))
+
+	if (jQuery.isEmptyObject($("#placeName").val())) {
+        alertify.error('Please provide a new name for the place');
+		return;
+	}else{
+		spotData["placeName"]=$("#placeName").val();
+
+		spotData['method'] = "update"
+		$.ajax({
+		    url:'/spot/update/',
+		    type: 'POST',
+		    data: spotData,success: function showAnswer(data) {
+			  if (data.code==200) {
+			    //console.log("success",data);
+		        alertify.success('Spot saved successfully');
+		        var delayInMilliseconds = 2000; // 2 second
+		        setTimeout(function() {
+		          location.reload(true);
+		        }, delayInMilliseconds);
+			  }else{
+			    console.log('Error, status:',data.code);
+			  }
+			}
+		})
+	}
+}
+
 
 // Function to remove the spot requested by the user
 function spotRemoveConfirmation(spotId){
@@ -160,7 +193,7 @@ function spotRemoveConfirmation(spotId){
     success: function showAnswer(data) {
       if (data.code==200) {
 
-        alertify.success("The spot: '" +data.placeName+ "' was deleted susscessfully");
+        alertify.success("The spot: '" +data.placeName+ "' was deleted successfully");
         var delayInMilliseconds = 2000; // 2 second
         setTimeout(function() {
           location.reload(true);
@@ -212,7 +245,7 @@ function spotCreate(defaultLat,defaultLng){
 		    data: spotData,success: function showAnswer(data) {
 			  if (data.code==200) {
 			    //console.log("success",data);
-		        alertify.success('Spot saved susscessfully');
+		        alertify.success('Spot saved successfully');
 		        var delayInMilliseconds = 2000; // 2 second
 		        setTimeout(function() {
 		          location.reload(true);

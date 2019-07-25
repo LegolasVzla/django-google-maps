@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^spot/', views.SpotView.as_view(), name='spot'),
     url(r'^spot/nearby/', views.SpotView.as_view(), name='spotNearby'),
     url(r'^spot/create/', views.SpotView.as_view(), name='spotCreate'),
+    url(r'^spot/editSpotModal/', views.SpotView.as_view(), name='editSpotModal'),
     url(r'^spot/update/', views.SpotView.as_view(), name='spotUpdate'),
     url(r'^spot/delete/', views.SpotView.as_view(), name='spotDelete')    
 #    url(r'^map/', views.MapView.as_view(), name='map')

@@ -47,7 +47,7 @@
           <div class="modal-content">
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal">&times;</button>
-              <h4 class="modal-title"><b>Add a New Place:</h4></b> 
+              <h4 class="modal-title"><b>Add a New Place:</b></h4> 
             </div>
             <div class="modal-body">
               <form method="post">
@@ -90,32 +90,32 @@
           <div class="modal-content">
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal">&times;</button>
-              <h4 class="modal-title"><b>Edit Place:</h4><label class="spotName"></label></b>
+              <h4 class="modal-title"><b>Edit Place: </b><label class="spotName"></label></h4><label class="spotIdToEdit" style="display: none;"></label>
             </div>
             <div class="modal-body">
               <form method="post">
               {% csrf_token %}
                 <fieldset>
                   <div class="form-group"><b>Name:</b>
-                    <input class="form-control" type="text" id="placeName" value="" autofocus="" required="">
+                    <input class="form-control" type="text" id="placeNameToEdit" value="" autofocus="">
                   </div>
                   <div class="form-group"><b>Latitude:</b>
-                    <input class="form-control" id="latitude" value="" readonly="">
+                    <input class="form-control" id="latitudeToEdit" value="" type="text" readonly="">
                   </div>
                   <div class="form-group"><b>Length:</b>
-                    <input class="form-control" id="length" value="" readonly="">
+                    <input class="form-control" id="lengthToEdit" value="" type="text" readonly="">
                   </div>
                   <div class="form-group"><b>Country:</b>
-                    <input class="form-control" id="country" value="" type="text" readonly="">
+                    <input class="form-control" id="countryToEdit" value="" type="text" readonly="">
                   </div>
                   <div class="form-group"><b>Country Code:</b>
-                    <input class="form-control" id="countryCode" value="" type="text" readonly="">
+                    <input class="form-control" id="countryCodeToEdit" value="" type="text" readonly="">
                   </div>
                   <div class="form-group"><b>City:</b>
-                    <input class="form-control" id="city" value="" type="text" readonly="">
+                    <input class="form-control" id="cityToEdit" value="" type="text" readonly="">
                   </div>
                   <div class="modal-footer">
-                    <input class="btn btn-success" type="submit" onclick='spotUpdate({{defaultLat}},{{defaultLng}})' value="Guardar" />
+                    <input class="btn btn-success" type="submit" data-spotId="{{spotIdToEdit}}" onclick='spotUpdate({{spotIdToEdit}})' value="Guardar" />
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                   </div>
                 </fieldset>
@@ -167,7 +167,7 @@
                 <td>{{ key.country }}</td>
                 <td>{{ key.city }}</td>
                 <td>
-                  <center><button type="submit" class="btn btn-flat" style="background-color:#f5f5f5;" onclick='spotEditModal({{key.id}})' data-target="#spotUpdateShowModal"><i class="far fa-edit"></i></button></center>
+                  <center><button type="submit" class="btn btn-flat" style="background-color:#f5f5f5;" data-toggle="modal" onclick='spotEditModal({{key.id}})' data-target="#spotUpdateShowModal"><i class="far fa-edit"></i></button></center>
                 </td>
                 <td>
                   <center><button type="submit" data-spotId="{{key.id}}" class="btn btn-flat" style="background-color:#f5f5f5;" onclick='spotRemoveConfirmation({{key.id}})' ><i class="far fa-trash-alt"></i></button></center>
