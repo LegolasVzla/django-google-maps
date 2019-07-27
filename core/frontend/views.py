@@ -39,7 +39,6 @@ class IndexView(APIView):
 class SpotView(APIView):
 
     def post(self, request, *args, **kwargs):
-        print ("POST",request.POST)
         data = {}
     
         # User already clicked a point 
@@ -79,7 +78,7 @@ class SpotView(APIView):
             data['code'] = status.HTTP_200_OK
 
         # User is sending spot data to update
-        elif request.POST['method'] == "update":
+        elif request.POST['method'] == "put":
             spot = Spots.objects.get(id=request.POST['spotId'])
             spot.name = request.POST['name']
             spot.save()
@@ -107,10 +106,9 @@ class SpotView(APIView):
                 data['nearby'] = nearby_list
 
             else:
-
                 data['code'] = status.HTTP_204_NO_CONTENT
 
-        else:            
+        else:
             data['code'] = status.HTTP_400_BAD_REQUEST
 
         return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder), content_type='application/json')

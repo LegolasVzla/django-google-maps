@@ -3,6 +3,7 @@ var spotData = {};
 var temporalLatLng = {}
 var first_click = false;
 var location_aux = null;
+var temporalSpotToEdit = null;
 
 // Function to get place information from latitude and lenght
 function reverse_geocoding(location) {
@@ -136,6 +137,7 @@ function spotEditModal(spotId) {
 		    $("#latitudeToEdit").val(data.lat)
 		    $("#lengthToEdit").val(data.lng)
 		    $(".spotIdToEdit").text(data.id)
+		    temporalSpotToEdit = data.id
 
 		}else{
 		    console.log('Error to load modal');
@@ -145,23 +147,21 @@ function spotEditModal(spotId) {
 }
 
 // Function to edit the spot information
-function spotUpdate(spotIdToEdit){
+function spotUpdate(){
 
-	console.log($('#spotUpdateShowModal'+spotIdToEdit).attr("data-spotId"))
-
-	if (jQuery.isEmptyObject($("#placeName").val())) {
+	if (jQuery.isEmptyObject($("#placeNameToEdit").val())) {
         alertify.error('Please provide a new name for the place');
-		return;
 	}else{
-		spotData["placeName"]=$("#placeName").val();
+		spotData['method'] = "put"
+		spotData["name"]=$("#placeNameToEdit").val();
+		spotData["spotId"] = temporalSpotToEdit
+		temporalSpotToEdit = null
 
-		spotData['method'] = "update"
 		$.ajax({
 		    url:'/spot/update/',
 		    type: 'POST',
 		    data: spotData,success: function showAnswer(data) {
 			  if (data.code==200) {
-			    //console.log("success",data);
 		        alertify.success('Spot saved successfully');
 		        var delayInMilliseconds = 2000; // 2 second
 		        setTimeout(function() {
@@ -286,9 +286,6 @@ function spotNearBy(latitude,longitude) {
 	      lng: length_aux
 	 },success: function showAnswer(data) {
 	  if (data.code==200) {
-
-		// console.log("array of nearby places:",data.nearby)
-        var delayInMilliseconds = 2000; // 2 second
 
 		var shape = {
 		    coord: [1, 1, 1, 20, 18, 20, 18 , 1],

@@ -93,11 +93,11 @@
               <h4 class="modal-title"><b>Edit Place: </b><label class="spotName"></label></h4><label class="spotIdToEdit" style="display: none;"></label>
             </div>
             <div class="modal-body">
-              <form method="post">
+              <form method="put">
               {% csrf_token %}
                 <fieldset>
                   <div class="form-group"><b>Name:</b>
-                    <input class="form-control" type="text" id="placeNameToEdit" value="" autofocus="">
+                    <input class="form-control" type="text" id="placeNameToEdit" value="" autofocus="" required="">
                   </div>
                   <div class="form-group"><b>Latitude:</b>
                     <input class="form-control" id="latitudeToEdit" value="" type="text" readonly="">
@@ -115,7 +115,7 @@
                     <input class="form-control" id="cityToEdit" value="" type="text" readonly="">
                   </div>
                   <div class="modal-footer">
-                    <input class="btn btn-success" type="submit" data-spotId="{{spotIdToEdit}}" onclick='spotUpdate({{spotIdToEdit}})' value="Guardar" />
+                    <input class="btn btn-success" type="submit" onclick='spotUpdate()' value="Guardar" />
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                   </div>
                 </fieldset>
