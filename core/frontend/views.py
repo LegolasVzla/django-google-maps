@@ -25,7 +25,10 @@ class IndexView(APIView):
         response = response.content.decode('utf-8')
         json_response = json.loads(response)
         content['api_key'] = API_KEY
-        content['fontawesome_key'] = FONT_AWESOME_KEY
+        if FONT_AWESOME_KEY:
+            content['fontawesome_key'] = FONT_AWESOME_KEY
+        else:
+            content['fontawesome_key'] = ''
         content['defaultLat'] = defaultLat 
         content['defaultLng'] = defaultLng         
 
@@ -38,57 +41,20 @@ class IndexView(APIView):
 
 class SpotView(APIView):
 
-    def post(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         data = {}
-    
-        # User already clicked a point 
-        if request.POST['method'] == "get":
-            data['code'] = status.HTTP_200_OK
-            data['lat'] = request.POST['lat']
-            data['lng'] = request.POST['lng']
 
-        # User is sending spot data to create
-        elif request.POST['method'] == "create":
+        # Request to get information about the place clicked
+        if request.method == 'GET' and request.GET['action']=="get_modal":
             data['code'] = status.HTTP_200_OK
-            spotData = Spots(
-                user_id=1,
-                name=request.POST.get('placeName'),
-                city=request.POST['city'],
-                geom = GEOSGeometry("POINT({} {})".format(request.POST.get('length'), request.POST.get('latitude'))),
-                position = GEOSGeometry("POINT({} {})".format(request.POST.get('length'), request.POST.get('latitude'))),
-                country=request.POST['country'],
-                country_code=request.POST['countryCode'],
-                lat=request.POST['latitude'],
-                lng=request.POST['length']
-                )
-            spotData.save()
-
-        # A spot is requested by the user to attempt edition
-        elif request.POST['method'] == "editSpotModal":
-            response = requests.get("http://localhost:8000/api/spots/"+str(request.POST['spot_id']))
-            response = response.content.decode('utf-8')
-            json_response = json.loads(response)
-            data['id'] = json_response['id']
-            data['spotName'] = json_response['name']
-            data['country'] = json_response['country']
-            data['country_code'] = json_response['country_code']
-            data['city'] = json_response['city']
-            data['lat'] = json_response['lat']
-            data['lng'] = json_response['lng']
-            data['code'] = status.HTTP_200_OK
-
-        # User is sending spot data to update
-        elif request.POST['method'] == "put":
-            spot = Spots.objects.get(id=request.POST['spotId'])
-            spot.name = request.POST['name']
-            spot.save()
-            data['code'] = status.HTTP_200_OK
+            data['lat'] = request.GET['lat']
+            data['lng'] = request.GET['lng']
 
         # User is request nearby places
-        elif request.POST['method'] == "get_nearby":
+        elif request.method == 'GET' and request.GET['action']== "nearby":
             max_distance=5  # 5 km by default, this could be customizable
-            current_latitude = Decimal(request.POST['lat'])
-            current_longitude = Decimal(request.POST['lng'])
+            current_latitude = Decimal(request.GET['lat'])
+            current_longitude = Decimal(request.GET['lng'])
 
             # Transform current latitude and longitude of the user, in a geometry point
             point_of_user = GEOSGeometry("POINT({} {})".format(current_longitude, current_latitude))
@@ -113,11 +79,56 @@ class SpotView(APIView):
 
         return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder), content_type='application/json')
 
-    def put(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
+        data = {}
+
+        # User is sending spot data to create
+        if request.POST['action'] == "create":
+            data['code'] = status.HTTP_200_OK
+            spotData = Spots(
+                user_id=1,
+                name=request.POST.get('placeName'),
+                city=request.POST['city'],
+                geom = GEOSGeometry("POINT({} {})".format(request.POST.get('length'), request.POST.get('latitude'))),
+                position = GEOSGeometry("POINT({} {})".format(request.POST.get('length'), request.POST.get('latitude'))),
+                country=request.POST['country'],
+                country_code=request.POST['countryCode'],
+                lat=request.POST['latitude'],
+                lng=request.POST['length']
+                )
+            spotData.save()
+
+        # A spot is requested by the user to attempt edition
+        elif request.POST['action'] == "editSpotModal":
+            response = requests.get("http://localhost:8000/api/spots/"+str(request.POST['spot_id']))
+            response = response.content.decode('utf-8')
+            json_response = json.loads(response)
+            data['id'] = json_response['id']
+            data['spotName'] = json_response['name']
+            data['country'] = json_response['country']
+            data['country_code'] = json_response['country_code']
+            data['city'] = json_response['city']
+            data['lat'] = json_response['lat']
+            data['lng'] = json_response['lng']
+            data['code'] = status.HTTP_200_OK
+
+        # User is sending spot data to update
+        elif request.POST['action'] == "put":
+            spot = Spots.objects.get(id=request.POST['spotId'])
+            spot.name = request.POST['name']
+            spot.save()
+            data['code'] = status.HTTP_200_OK
+
+        else:
+            data['code'] = status.HTTP_400_BAD_REQUEST
+
+        return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder), content_type='application/json')
+
+    def delete(self, request, *args, **kwargs):
         data = {}
 
         # An spot is requested by the user to remove it 
-        if request.POST['method'] == "delete":
+        if request.method == 'DELETE':
             spot = Spots.objects.get(id=request.POST.get('spot_id'))
             spot.is_active = False
             spot.is_deleted = True

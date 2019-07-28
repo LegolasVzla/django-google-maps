@@ -31,10 +31,10 @@ API_KEY = config.get('googleMapsConf', 'API_KEY')
 defaultLat = config.get('googleMapsConf', 'defaultLat')
 defaultLng = config.get('googleMapsConf', 'defaultLng')
 
-FONT_AWESOME_KEY=config.get('font-awesomeConf', 'KEY')
-
-FONT_AWESOME_KEY=config.get('font-awesomeConf', 'KEY')
-
+try:
+    FONT_AWESOME_KEY=config.get('font-awesomeConf', 'KEY')
+except Exception as e:
+    FONT_AWESOME_KEY=''
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

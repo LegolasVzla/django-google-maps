@@ -14,7 +14,7 @@ class UserViewSet(viewsets.ModelViewSet):
 	serializer_class = UserSerializer
 
 class SpotsViewSet(viewsets.ModelViewSet):
-	queryset = Spots.objects.all().filter(is_active=True,is_deleted=False)
+	queryset = Spots.objects.all().filter(is_active=True,is_deleted=False).order_by('id')
 	permission_classes = [
 		permissions.AllowAny
 	]

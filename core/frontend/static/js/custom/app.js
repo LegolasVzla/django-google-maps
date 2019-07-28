@@ -86,9 +86,9 @@ function spotGetModal(defaultLat,defaultLng) {
 
 	$.ajax({
 	    url:'/spot/',
-	    type: 'POST',
+	    type: 'GET',
 	    data: {
-	      method: "get",
+	      action: "get_modal",
 	      lat: latitude,
 	      lng: length
 	 },success: function showAnswer(data) {
@@ -99,7 +99,6 @@ function spotGetModal(defaultLat,defaultLng) {
 			// Get information about the current place
 			latlng = new google.maps.LatLng(latitude,length);
 		  	reverse_geocoding(latlng);
-		    //console.log("success",data);
 
 		    // Send data to the modal inputs
 		    $("#spotCreateShowModal").click(function(e){
@@ -109,7 +108,7 @@ function spotGetModal(defaultLat,defaultLng) {
 		     // $("#spotCreateShowModal").modal('show');
 		    });
 		}else{
-		    console.log('Error to load modal');
+		    console.log('Error to load modal',data.code);
 		  }
 		}
 	})
@@ -123,7 +122,7 @@ function spotEditModal(spotId) {
 	    url:'/spot/editSpotModal/',
 	    type: 'POST',
 	    data: {
-	      method: "editSpotModal",
+	      action: "editSpotModal",
 	      spot_id: spotId
 	 },success: function showAnswer(data) {
 	  	if (data.code==200) {
@@ -152,14 +151,14 @@ function spotUpdate(){
 	if (jQuery.isEmptyObject($("#placeNameToEdit").val())) {
         alertify.error('Please provide a new name for the place');
 	}else{
-		spotData['method'] = "put"
+		spotData['action'] = "put"
 		spotData["name"]=$("#placeNameToEdit").val();
 		spotData["spotId"] = temporalSpotToEdit
 		temporalSpotToEdit = null
 
 		$.ajax({
 		    url:'/spot/update/',
-		    type: 'POST',
+		    type: 'GET',
 		    data: spotData,success: function showAnswer(data) {
 			  if (data.code==200) {
 		        alertify.success('Spot saved successfully');
@@ -187,10 +186,9 @@ function spotRemoveConfirmation(spotId){
   }
   $.ajax({
     url:'/spot/delete',
-    type: 'PUT',
+    type: 'DELETE',
     data: {
-      method: "delete",
-      spot_id: spotId,
+      spot_id: spotId
   },
     success: function showAnswer(data) {
       if (data.code==200) {
@@ -243,7 +241,7 @@ function spotCreate(defaultLat,defaultLng){
 	}else{
 		spotData["placeName"]=$("#placeName").val();
 
-		spotData['method'] = "create"
+		spotData['action'] = "create"
 		$.ajax({
 		    url:'/spot/create/',
 		    type: 'POST',
@@ -279,9 +277,9 @@ function spotNearBy(latitude,longitude) {
 
 	$.ajax({
 	    url:'/spot/nearby/',
-	    type: 'POST',
+	    type: 'GET',
 	    data: {
-	      method: "get_nearby",
+	      action: "nearby",	    	
 	      lat: latitude_aux,
 	      lng: length_aux
 	 },success: function showAnswer(data) {
@@ -343,7 +341,6 @@ function load_map(defaultLat,defaultLng){
 	// Adding listener click
 	map.addListener('click',function(event){
 		//console.log(event);
-		console.log("HE LLAMADO A SELECT SPOT!!!!",event.latLng)
 		spotSelect(event.latLng);
 	});
 
