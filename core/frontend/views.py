@@ -5,7 +5,8 @@ from django.http import (HttpResponse, HttpResponseForbidden,
 #from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.views import APIView
 #from rest_framework.permissions import IsAuthenticated
-from core.settings import API_KEY,FONT_AWESOME_KEY,defaultLat,defaultLng
+from core.settings import (API_KEY,FONT_AWESOME_KEY,defaultLat,defaultLng,
+    max_distance)
 from rest_framework import status
 from api.models import (Spots)
 
@@ -54,7 +55,6 @@ class SpotView(APIView):
 
             # Request to display nearby places
             elif request.GET['action']== "get_nearby_places":
-                max_distance=5  # 5 km by default, this could be customizable
                 current_latitude = Decimal(request.GET['lat'])
                 current_longitude = Decimal(request.GET['lng'])
 

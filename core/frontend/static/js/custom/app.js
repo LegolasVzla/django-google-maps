@@ -1,15 +1,15 @@
 var clickedSpotsArray = [];
 var spotData = {};
 var temporalLatLng = {}
-var first_click = false;
-var location_aux = null;
+var firstClick = false;
+var locationAux = null;
 var temporalSpotToEdit = null;
 
 // Function to get place information from latitude and lenght
 function reverse_geocoding(location) {
 
 	new google.maps.Geocoder().geocode({'latLng' : location}, function(results, status) {
-	console.log(results, status);
+	//console.log(results, status);
 	    if (status == google.maps.GeocoderStatus.OK) {
 	        if (results[1]) {
 	            var country = null, countryCode = null, city = null, cityAlt = null;
@@ -144,9 +144,9 @@ function spotCreate(defaultLat,defaultLng){
 function spotNearBy(latitude,longitude) {
 	var latitude_aux = null, length_aux = null;
 
-	if (first_click) {
-		latitude_aux = location_aux.lat()
-		length_aux = location_aux.lng()
+	if (firstClick) {
+		latitude_aux = locationAux.lat()
+		length_aux = locationAux.lng()
 	}else{
 		latitude_aux = latitude
 		length_aux = longitude
@@ -306,8 +306,8 @@ function spotSelect(location){
 
 	clickedSpotsArray.push(spot);
 
-	location_aux = location;
-	first_click = true;
+	locationAux = location;
+	firstClick = true;
 }
 
 // Call when you APP gets the lat and long of the user

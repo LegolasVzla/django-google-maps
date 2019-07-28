@@ -31,6 +31,10 @@ API_KEY = config.get('googleMapsConf', 'API_KEY')
 defaultLat = config.get('googleMapsConf', 'defaultLat')
 defaultLng = config.get('googleMapsConf', 'defaultLng')
 
+# GEOSGeometry Config
+max_distance = config.get('GEOSGeometryConf', 'max_distance')
+
+# Fond awesome Config
 try:
     FONT_AWESOME_KEY=config.get('font-awesomeConf', 'KEY')
 except Exception as e:
