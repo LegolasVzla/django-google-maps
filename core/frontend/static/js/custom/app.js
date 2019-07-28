@@ -58,26 +58,24 @@ function reverse_geocoding(location) {
 				spotData["countryCode"]=countryCode;
 				spotData["latitude"]=location.lat();
 				spotData["length"]=location.lng();
-			    console.log("Spot data",spotData)
+			    //console.log("Spot data",spotData)
 
 	        }
 	    } else {
 	    	document.getElementById('error').innerHTML = "Error Status: " + status;
 	    }
 	})
-
 }
 
 // Function to set a position from click user interaction or default position
 function spotGetModal(defaultLat,defaultLng) {
-
 	var latitude = null, length = null; 
 
 	// User already clicked a point
 	if(Object.keys(temporalLatLng).length > 0){
+		//console.log("I already choose a point",temporalLatLng)
 		latitude = temporalLatLng["latitude"];
 		length = temporalLatLng["length"]
-		//console.log("I already choose a point",temporalLatLng)
 	}else{
 		//console.log("I didn't choose a point")
 		latitude = defaultLat;
@@ -88,7 +86,7 @@ function spotGetModal(defaultLat,defaultLng) {
 	    url:'/spot/',
 	    type: 'GET',
 	    data: {
-	      action: "get_modal",
+	      action: "get_spot_modal",
 	      lat: latitude,
 	      lng: length
 	 },success: function showAnswer(data) {
@@ -112,124 +110,6 @@ function spotGetModal(defaultLat,defaultLng) {
 		  }
 		}
 	})
-
-}
-
-// Function to get the spot Id requested by the user and return the spot information
-function spotEditModal(spotId) {
-
-	$.ajax({
-	    url:'/spot/editSpotModal/',
-	    type: 'POST',
-	    data: {
-	      action: "editSpotModal",
-	      spot_id: spotId
-	 },success: function showAnswer(data) {
-	  	if (data.code==200) {
-
-		    // Send data to the modal inputs
-		    $(".spotName").text(data.spotName)
-		    $("#placeNameToEdit").val(data.spotName)
-		    $("#cityToEdit").val(data.city)
-		    $("#countryToEdit").val(data.country)
-		    $("#countryCodeToEdit").val(data.country_code)
-		    $("#latitudeToEdit").val(data.lat)
-		    $("#lengthToEdit").val(data.lng)
-		    $(".spotIdToEdit").text(data.id)
-		    temporalSpotToEdit = data.id
-
-		}else{
-		    console.log('Error to load modal');
-		  }
-		}
-	})
-}
-
-// Function to edit the spot information
-function spotUpdate(){
-
-	if (jQuery.isEmptyObject($("#placeNameToEdit").val())) {
-        alertify.error('Please provide a new name for the place');
-	}else{
-		spotData['action'] = "put"
-		spotData["name"]=$("#placeNameToEdit").val();
-		spotData["spotId"] = temporalSpotToEdit
-		temporalSpotToEdit = null
-
-		$.ajax({
-		    url:'/spot/update/',
-		    type: 'GET',
-		    data: spotData,success: function showAnswer(data) {
-			  if (data.code==200) {
-		        alertify.success('Spot saved successfully');
-		        var delayInMilliseconds = 2000; // 2 second
-		        setTimeout(function() {
-		          location.reload(true);
-		        }, delayInMilliseconds);
-			  }else{
-			    console.log('Error, status:',data.code);
-			  }
-			}
-		})
-	}
-}
-
-
-// Function to remove the spot requested by the user
-function spotRemoveConfirmation(spotId){
-
-  var r = confirm("¿Are you sure to remove this place?");
-  if (r == true) {
-    console.log('');
-  } else {
-    return;
-  }
-  $.ajax({
-    url:'/spot/delete',
-    type: 'DELETE',
-    data: {
-      spot_id: spotId
-  },
-    success: function showAnswer(data) {
-      if (data.code==200) {
-
-        alertify.success("The spot: '" +data.placeName+ "' was deleted successfully");
-        var delayInMilliseconds = 2000; // 2 second
-        setTimeout(function() {
-          location.reload(true);
-        }, delayInMilliseconds);
-      }else{
-        alertify.error('An error happened removing the spot, please try again.');
-      }
-
-    }
-  });
-};
-
-// Function to select a spot and get geolocation values
-function spotSelect(location){
-
-	temporalLatLng = {}
-	// Define a new marker in the clicked position
-	var spot = new google.maps.Marker({
-		position: location,
-		map: map,
-		// animation: google.maps.Animation.DROP
-	});
-
-	console.log("latitude: ", location.lat());
-	console.log("longitud: ", location.lng());
-	temporalLatLng["latitude"] = location.lat()
-	temporalLatLng["length"] = location.lng()
-
-	for (var i in clickedSpotsArray) {
-		clickedSpotsArray[i].setMap(null);
-	}
-
-	clickedSpotsArray.push(spot);
-
-	location_aux = location;
-	first_click = true;
 }
 
 // Function to save the spot information
@@ -241,7 +121,6 @@ function spotCreate(defaultLat,defaultLng){
 	}else{
 		spotData["placeName"]=$("#placeName").val();
 
-		spotData['action'] = "create"
 		$.ajax({
 		    url:'/spot/create/',
 		    type: 'POST',
@@ -263,7 +142,6 @@ function spotCreate(defaultLat,defaultLng){
 
 // Set custom user spots
 function spotNearBy(latitude,longitude) {
-
 	var latitude_aux = null, length_aux = null;
 
 	if (first_click) {
@@ -279,7 +157,7 @@ function spotNearBy(latitude,longitude) {
 	    url:'/spot/nearby/',
 	    type: 'GET',
 	    data: {
-	      action: "nearby",	    	
+	      action: "get_nearby_places",	    	
 	      lat: latitude_aux,
 	      lng: length_aux
 	 },success: function showAnswer(data) {
@@ -314,13 +192,128 @@ function spotNearBy(latitude,longitude) {
         alertify.error('Not found own nearby places');
 	  }
 	}
+	})	
+}
+
+// Function to get the spot Id requested by the user and return the spot information
+function spotEditModal(spotId) {
+
+	$.ajax({
+	    url:'/spot/editSpotModal/',
+	    type: 'GET',
+	    data: {
+	      action: "edit_spot_modal",
+	      spot_id: spotId
+	 },success: function showAnswer(data) {
+	  	if (data.code==200) {
+
+		    // Send data to the modal inputs
+		    $(".spotName").text(data.spotName)
+		    $("#placeNameToEdit").val(data.spotName)
+		    $("#cityToEdit").val(data.city)
+		    $("#countryToEdit").val(data.country)
+		    $("#countryCodeToEdit").val(data.country_code)
+		    $("#latitudeToEdit").val(data.lat)
+		    $("#lengthToEdit").val(data.lng)
+		    $(".spotIdToEdit").text(data.id)
+		    temporalSpotToEdit = data.id
+
+		}else{
+		    console.log('Error to load modal');
+		  }
+		}
 	})
-	
+}
+
+// Function to edit the spot information
+function spotUpdate(){
+
+	if (jQuery.isEmptyObject($("#placeNameToEdit").val())) {
+        alertify.error('Please provide a new name for the place');
+	}else{
+		spotData["name"]=$("#placeNameToEdit").val();
+		spotData["spotId"] = temporalSpotToEdit
+		temporalSpotToEdit = null
+
+		$.ajax({
+		    url:'/spot/update/',
+		    type: 'PUT',
+		    data: spotData,success: function showAnswer(data) {
+			  if (data.code==200) {
+		        alertify.success('Spot saved successfully');
+		        var delayInMilliseconds = 2000; // 2 second
+		        setTimeout(function() {
+		          location.reload(true);
+		        }, delayInMilliseconds);
+			  }else{
+			    console.log('Error, status:',data.code);
+			  }
+			}
+		})
+	}
+}
+
+// Function to remove the spot requested by the user
+function spotRemove(spotId){
+  var r = confirm("¿Are you sure to remove this place?");
+
+  if (r == true) {
+    console.log('');
+  } else {
+    return;
+  }
+  $.ajax({
+    url:'/spot/delete',
+    type: 'DELETE',
+    data: {
+      spot_id: spotId
+  },
+    success: function showAnswer(data) {
+      if (data.code==200) {
+
+        alertify.success("The spot: '" +data.placeName+ "' was deleted successfully");
+        var delayInMilliseconds = 2000; // 2 second
+        setTimeout(function() {
+          location.reload(true);
+        }, delayInMilliseconds);
+      }else{
+        alertify.error('An error happened removing the spot, please try again.');
+      }
+
+    }
+  });
+}
+
+// Function to select a spot and get geolocation values
+function spotSelect(location){
+	temporalLatLng = {}
+
+	// Define a new marker in the clicked position
+	var spot = new google.maps.Marker({
+		position: location,
+		map: map,
+		// animation: google.maps.Animation.DROP
+	});
+
+	console.log("latitude: ", location.lat());
+	console.log("longitud: ", location.lng());
+	temporalLatLng["latitude"] = location.lat()
+	temporalLatLng["length"] = location.lng()
+
+	for (var i in clickedSpotsArray) {
+		clickedSpotsArray[i].setMap(null);
+	}
+
+	clickedSpotsArray.push(spot);
+
+	location_aux = location;
+	first_click = true;
 }
 
 // Call when you APP gets the lat and long of the user
 function load_map(defaultLat,defaultLng){
-	console.log(defaultLat,defaultLng)
+	console.log("latitude: ", defaultLat);
+	console.log("longitud: ", defaultLng);
 
 	var googleOptions = {
 		zoom:15,
@@ -355,4 +348,3 @@ function load_map(defaultLat,defaultLng){
 	clickedSpotsArray.push(spot);
 
 }
-
