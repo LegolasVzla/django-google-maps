@@ -9,7 +9,7 @@ var temporalSpotToEdit = null;
 function reverse_geocoding(location) {
 
 	new google.maps.Geocoder().geocode({'latLng' : location}, function(results, status) {
-	console.log(results, status);
+	//console.log(results, status);
 	    if (status == google.maps.GeocoderStatus.OK) {
 	        if (results[1]) {
 	            var country = null, countryCode = null, city = null, cityAlt = null, postal_code = null;
@@ -57,7 +57,7 @@ function reverse_geocoding(location) {
 	                }
 	            }
 
-	            console.log("City: " + city + ", City2: " + cityAlt + ", Country: " + country + ", Country Code: " + countryCode + ", Postal code: " + postal_code);
+	            //console.log("City: " + city + ", City2: " + cityAlt + ", Country: " + country + ", Country Code: " + countryCode + ", Postal code: " + postal_code);
 			    $("#city").val(city)
 			    $("#country").val(country)
 			    $("#countryCode").val(countryCode)
