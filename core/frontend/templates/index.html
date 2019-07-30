@@ -69,6 +69,9 @@
                   <div class="form-group"><b>Country Code:</b>
                     <input class="form-control" id="countryCode" value="" type="text" readonly="">
                   </div>
+                  <div class="form-group"><b>Postal Code:</b>
+                    <input class="form-control" id="postalCode" value="" type="text" readonly="">
+                  </div>
                   <div class="form-group"><b>City:</b>
                     <input class="form-control" id="city" value="" type="text" readonly="">
                   </div>
@@ -112,6 +115,9 @@
                   <div class="form-group"><b>Country Code:</b>
                     <input class="form-control" id="countryCodeToEdit" value="" type="text" readonly="">
                   </div>
+                  <div class="form-group"><b>Postal Code:</b>
+                    <input class="form-control" id="postalCodeToEdit" value="" type="text" readonly="">
+                  </div>                  
                   <div class="form-group"><b>City:</b>
                     <input class="form-control" id="cityToEdit" value="" type="text" readonly="">
                   </div>
@@ -153,7 +159,9 @@
                 <th>Lat</th>
                 <th>Long</th>
                 <th>Country</th>
+                <th>Country Code</th>                
                 <th>City</th>
+                <th>Postal Code</th>
                 <th>Edit</th>
                 <th>Delete</th>                
             </tr>
@@ -166,7 +174,9 @@
                 <td>{{ key.lat }}</td>
                 <td>{{ key.lng }}</td>
                 <td>{{ key.country }}</td>
+                <td>{{ key.country_code }}</td>
                 <td>{{ key.city }}</td>
+                <td>{{ key.postal_code }}</td>                
                 <td>
                   <center><button type="submit" class="btn btn-flat" style="background-color:#f5f5f5;" data-toggle="modal" onclick='spotEditModal({{key.id}})' data-target="#spotUpdateShowModal"><img data-toggle='tooltip' title='Edit Place' src='/static/media/edit.png' width='12' height='14'></button></center>
                 </td>

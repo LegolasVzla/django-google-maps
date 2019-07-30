@@ -86,6 +86,7 @@ class SpotView(APIView):
                 data['country'] = json_response['country']
                 data['country_code'] = json_response['country_code']
                 data['city'] = json_response['city']
+                data['postal_code'] = json_response['postal_code']
                 data['lat'] = json_response['lat']
                 data['lng'] = json_response['lng']
                 data['code'] = status.HTTP_200_OK
@@ -110,6 +111,7 @@ class SpotView(APIView):
                 position = GEOSGeometry("POINT({} {})".format(request.POST.get('length'), request.POST.get('latitude'))),
                 country=request.POST['country'],
                 country_code=request.POST['countryCode'],
+                postal_code=request.POST['postalCode'],                
                 lat=request.POST['latitude'],
                 lng=request.POST['length']
                 )

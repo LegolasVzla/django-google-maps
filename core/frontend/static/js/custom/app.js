@@ -9,10 +9,10 @@ var temporalSpotToEdit = null;
 function reverse_geocoding(location) {
 
 	new google.maps.Geocoder().geocode({'latLng' : location}, function(results, status) {
-	//console.log(results, status);
+	console.log(results, status);
 	    if (status == google.maps.GeocoderStatus.OK) {
 	        if (results[1]) {
-	            var country = null, countryCode = null, city = null, cityAlt = null;
+	            var country = null, countryCode = null, city = null, cityAlt = null, postal_code = null;
 	            var c, lc, component;
 
 	            for (var r = 0, rl = results.length; r < rl; r += 1) {
@@ -36,6 +36,17 @@ function reverse_geocoding(location) {
 	                            break;
 	                        }
 	                    }
+
+	                }
+	                else if (!postal_code && result.types[0] === 'postal_code') {
+	                    for (c = 0, lc = result.address_components.length; c < lc; c += 1) {
+	                        component = result.address_components[c];
+
+	                        if (component.types[0] === 'postal_code') {
+	                            postal_code = component.long_name;
+	                            break;
+	                        }
+	                    }
 	                } else if (!country && result.types[0] === 'country') {
 	                    country = result.address_components[0].long_name;
 	                    countryCode = result.address_components[0].short_name;
@@ -46,16 +57,18 @@ function reverse_geocoding(location) {
 	                }
 	            }
 
-	            //console.log("City: " + city + ", City2: " + cityAlt + ", Country: " + country + ", Country Code: " + countryCode);
+	            console.log("City: " + city + ", City2: " + cityAlt + ", Country: " + country + ", Country Code: " + countryCode + ", Postal code: " + postal_code);
 			    $("#city").val(city)
 			    $("#country").val(country)
 			    $("#countryCode").val(countryCode)
+			    $("#postalCode").val(postal_code)
 			    $("#latitude").val(location.lat())
 			    $("#length").val(location.lng())
 
 				spotData["city"]=city;
 				spotData["country"]=country;
 				spotData["countryCode"]=countryCode;
+				spotData["postalCode"]=postal_code;
 				spotData["latitude"]=location.lat();
 				spotData["length"]=location.lng();
 			    //console.log("Spot data",spotData)
@@ -213,6 +226,7 @@ function spotEditModal(spotId) {
 		    $("#cityToEdit").val(data.city)
 		    $("#countryToEdit").val(data.country)
 		    $("#countryCodeToEdit").val(data.country_code)
+		    $("#postalCodeToEdit").val(data.postal_code)
 		    $("#latitudeToEdit").val(data.lat)
 		    $("#lengthToEdit").val(data.lng)
 		    $(".spotIdToEdit").text(data.id)

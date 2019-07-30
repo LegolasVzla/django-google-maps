@@ -23,6 +23,7 @@ class Spots(models.Model):
 	country = models.CharField( max_length = 100)
 	country_code = models.CharField( max_length = 5)
 	city = models.CharField( max_length = 100)	
+	postal_code = models.CharField( max_length = 20)
 	lat = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
 	lng = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
 	geom = models.GeometryField(srid=4326,blank=True,null=True)
