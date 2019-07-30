@@ -110,6 +110,28 @@ Endpoint |HTTP Method | CRUD Method | Result
 - Nearby places: in "GoogleMaps" tab, you can display nearby places from your current position within 'max_distance'. The map will show your nearby places with the icon below:
 ![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/frontend/static/media/place_icon.png "Custom Spot")
 
+## Administrative Divisions
+
+You can access of a administrative divisions data as below:
+
+1. Cities:
+
+	administrative_area_level_1 
+
+2. County, Municipality:
+
+	administrative_area_level_2
+
+3. Parish:
+
+	administrative_area_level_3
+
+You can find more information about administrative divisions in:
+
+- [List of administrative divisions by country](https://en.wikipedia.org/wiki/List_of_administrative_divisions_by_country)
+
+- [Country to street level](https://wiki.openstreetmap.org/wiki/Nominatim/Development_overview#Country_to_street_level)
+
 ## Contributions
 ------------------------
 
