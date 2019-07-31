@@ -110,6 +110,26 @@ Endpoint |HTTP Method | CRUD Method | Result
 - Nearby places: in "GoogleMaps" tab, you can display nearby places from your current position within 'max_distance'. The map will show your nearby places with the icon below:
 ![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/frontend/static/media/place_icon.png "Custom Spot")
 
+## Querying geometry data in PgAdmin4
+
+Spots table contains two geometry columns in WGS 84 format (SRID 4326):
+
+- geom
+- position
+
+That means that you can querying and watch our geometry data in PgAdmin4 as follow:
+
+![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/frontend/static/media/pgadmin_image1.jpeg "pgAdmin4 geometry Query")
+
+Now you can see an Eye Icon that means you can wath our data in the pgadmin map:
+
+![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/frontend/static/media/pgadmin_image1.jpeg "pgAdmin4 map")
+
+That's great! also you can watch it in differents layers (street, topography...) 
+
+Note: If our layers have an SRID other than 4326, the map will show the layers, but without a background.
+
+
 ## Administrative Divisions
 
 You can access of a administrative divisions data as below:
