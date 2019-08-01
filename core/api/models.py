@@ -43,3 +43,10 @@ class Images(models.Model):
 	is_deleted = models.BooleanField(default=False)
 	updated_date=models.DateTimeField(auto_now=True)
 	created_date = models.DateTimeField(auto_now_add=True)
+
+class Tags(models.Model):
+	name = models.CharField( max_length = 100)
+	is_active = models.BooleanField(default=True)
+	is_deleted = models.BooleanField(default=False)
+	updated_date=models.DateTimeField(auto_now=True)
+	created_date = models.DateTimeField(auto_now_add=True)

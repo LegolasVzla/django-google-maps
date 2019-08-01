@@ -121,7 +121,7 @@ That means that you can querying and watch our geometry data in PgAdmin4 as foll
 
 ![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/frontend/static/media/pgadmin_image1.jpeg "pgAdmin4 geometry Query")
 
-Now you can see an Eye Icon that means you can wath our data in the pgadmin map:
+Now you can see an Eye Icon that means you can watch our data in the pgadmin map:
 
 ![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/frontend/static/media/pgadmin_image2.jpeg "pgAdmin4 map")
 
