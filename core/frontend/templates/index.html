@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="{% static 'css/bootstrap/datatables/1.10.19/dataTables.bootstrap4.min.css' %}">
     <!-- <link rel="stylesheet" href="{% static 'css/bootstrap/datatables/4.1.3/bootstrap.css' %}"> -->
 
-    <!-- include the style -->
+    <!-- Alertify -->
     <link rel="stylesheet" href="{% static 'css/alertifyjs/alertify.min.css' %} "/>
     
     <!-- include a theme -->
@@ -30,13 +30,23 @@
 
     {% endif %}
 
-    <!-- Google Maps -->
+    <!-- jQuerytagEditormaster -->
+    <link rel="stylesheet" href="{% static 'css/jQuerytagEditormaster/jquery.tag-editor.css' %}">
+
     <style media="screen">
+      /* Google Maps */
       #gmap_canvas img{
         max-width:none !important;
         background:none!important
       }
+
+      /* jQuerytagEditormaster color tags */
+      .tag-editor .red-tag .tag-editor-tag { color: #c65353; background: #ffd7d7; }
+      .tag-editor .red-tag .tag-editor-delete { background-color: #ffd7d7; }
+      .tag-editor .green-tag .tag-editor-tag { color: #45872c; background: #e1f3da; }
+      .tag-editor .green-tag .tag-editor-delete { background-color: #e1f3da; }
     </style>
+
     <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}" async defer></script>
   </head>
   <body onload="load_map({{defaultLat}},{{defaultLng}})">
@@ -56,6 +66,9 @@
                 <fieldset>
                   <div class="form-group"><b>Name:</b>
                     <input class="form-control" type="text" id="placeName" value="" autofocus="" required="">
+                  </div>
+                  <div class="form-group"><b>Tags:</b>
+                    <div style="margin:0 0 1.2em"><textarea id="jQuerytagEditor"></textarea></div>
                   </div>
                   <div class="form-group"><b>Latitude:</b>
                     <input class="form-control" id="latitude" value="" readonly="">
@@ -218,4 +231,24 @@
   } );
   </script>
 
+  <!-- Alertify -->
   <script src="{% static 'js/alertifyjs/alertify.min.js' %}"></script>
+
+  <!-- jQuerytagEditormaster -->
+  <!-- <script src="{% static 'js/jquery/jquery-1.11.1.min.js' %}"></script>  -->
+  <script src="{% static 'js/jquery/ui/1.12.1/jquery-ui.js' %}"></script>
+  <script src="{% static 'js/jQuerytagEditormaster/jquery.caret.min.js' %}"></script>
+  <script src="{% static 'js/jQuerytagEditormaster/jquery.tag-editor.js' %}"></script>
+
+  <script type="text/javascript">
+    function tag_classes(field, editor, tags) {
+        $('li', editor).each(function(){
+            var li = $(this);
+            if (li.find('.tag-editor-tag').html() == 'red') li.addClass('red-tag');
+            else if (li.find('.tag-editor-tag').html() == 'green') li.addClass('green-tag')
+            else li.removeClass('red-tag green-tag');
+        });
+    }
+    $('#jQuerytagEditor').tagEditor({ /*initialTags: ['custom', 'class', 'red', 'green', 'demo'], */onChange: tag_classes });
+    tag_classes(null, $('#jQuerytagEditor').tagEditor('getTags')[0].editor); // or editor == $('#jQuerytagEditor').next()    
+  </script>

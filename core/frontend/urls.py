@@ -6,6 +6,7 @@ from frontend import views
 
 urlpatterns = [
     url(r'^index/', views.IndexView.as_view(), name='index'),
+#    url(r'^demo/', views.DemoView.as_view(), name='demo'),
     url(r'^spot/', views.SpotView.as_view(), name='spot'),
     url(r'^spot/nearby/', views.SpotView.as_view(), name='spotNearby'),
     url(r'^spot/create/', views.SpotView.as_view(), name='spotCreate'),

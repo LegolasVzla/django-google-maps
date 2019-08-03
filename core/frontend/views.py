@@ -39,7 +39,14 @@ class IndexView(APIView):
             content['data'] = {'name':'Not found information'}
         #print(content)
         return render(request, 'index.html',content)
+'''
+class DemoView(APIView):
 
+def get(self, request, *args, **kwargs):
+content = {}
+content["message"] = 'Hello World'
+return render(request, 'demo.html',content)
+'''
 class SpotView(APIView):
 
     def get(self, request, *args, **kwargs):
@@ -116,6 +123,8 @@ class SpotView(APIView):
                 lng=request.POST['length']
                 )
             spotData.save()
+
+
 
         else:
             data['code'] = status.HTTP_400_BAD_REQUEST

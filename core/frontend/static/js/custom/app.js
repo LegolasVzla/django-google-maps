@@ -133,6 +133,7 @@ function spotCreate(defaultLat,defaultLng){
 		return;
 	}else{
 		spotData["placeName"]=$("#placeName").val();
+		spotData["tagList"]=$("#jQuerytagEditor").val()
 
 		$.ajax({
 		    url:'/spot/create/',
