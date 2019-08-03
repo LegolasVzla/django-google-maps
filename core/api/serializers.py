@@ -1,4 +1,5 @@
-from .models import (User,Spots,Images,Tags)
+from .models import (User,Spots,Images,Tags,TypeUserActions,UserActions,
+	SpotTags)
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 User = get_user_model()
@@ -21,4 +22,19 @@ class ImagesSerializer(serializers.ModelSerializer):
 class TagsSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Tags
+		fields = ('__all__')
+
+class TypeUserActionsSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = TypeUserActions
+		fields = ('__all__')
+
+class UserActionsSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = UserActions
+		fields = ('__all__')
+
+class SpotTagsSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = SpotTags
 		fields = ('__all__')

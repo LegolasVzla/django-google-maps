@@ -50,3 +50,26 @@ class Tags(models.Model):
 	is_deleted = models.BooleanField(default=False)
 	updated_date=models.DateTimeField(auto_now=True)
 	created_date = models.DateTimeField(auto_now_add=True)
+
+class TypeUserActions(models.Model):
+	name = models.CharField( max_length = 100)
+	is_active = models.BooleanField(default=True)
+	is_deleted = models.BooleanField(default=False)
+	updated_date=models.DateTimeField(auto_now=True)
+	created_date = models.DateTimeField(auto_now_add=True)
+
+class UserActions(models.Model):
+	type_user_action_id = models.ForeignKey(TypeUserActions,related_name='useractions_type_user_action_id',on_delete=models.CASCADE)
+	spot_id = models.ForeignKey(Spots,related_name='useractions_spot_id',on_delete=models.CASCADE)
+	is_active = models.BooleanField(default=True)
+	is_deleted = models.BooleanField(default=False)
+	updated_date=models.DateTimeField(auto_now=True)
+	created_date = models.DateTimeField(auto_now_add=True)
+
+class SpotTags(models.Model):
+	user_action_id = models.ForeignKey(UserActions,related_name='spottags_user_action_id',on_delete=models.CASCADE)
+	tag_id = models.ForeignKey(Tags,related_name='spottags_user_action_id',on_delete=models.CASCADE)
+	is_active = models.BooleanField(default=True)
+	is_deleted = models.BooleanField(default=False)
+	updated_date=models.DateTimeField(auto_now=True)
+	created_date = models.DateTimeField(auto_now_add=True)
