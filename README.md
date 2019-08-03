@@ -68,6 +68,10 @@ Then, run the migrations:
 
 	python manage.py migrate
 
+Generate default data with the fixtures:
+
+	python3 fixtures_load.py
+
 And finally, run the server:
 
 	python manage.py runserver

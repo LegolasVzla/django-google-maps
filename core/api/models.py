@@ -51,7 +51,7 @@ class Tags(models.Model):
 	updated_date=models.DateTimeField(auto_now=True)
 	created_date = models.DateTimeField(auto_now_add=True)
 
-class TypeUserActions(models.Model):
+class TypesUserAction(models.Model):
 	name = models.CharField( max_length = 100)
 	is_active = models.BooleanField(default=True)
 	is_deleted = models.BooleanField(default=False)
@@ -59,7 +59,7 @@ class TypeUserActions(models.Model):
 	created_date = models.DateTimeField(auto_now_add=True)
 
 class UserActions(models.Model):
-	type_user_action_id = models.ForeignKey(TypeUserActions,related_name='useractions_type_user_action_id',on_delete=models.CASCADE)
+	type_user_action_id = models.ForeignKey(TypesUserAction,related_name='useractions_type_user_action_id',on_delete=models.CASCADE)
 	spot_id = models.ForeignKey(Spots,related_name='useractions_spot_id',on_delete=models.CASCADE)
 	is_active = models.BooleanField(default=True)
 	is_deleted = models.BooleanField(default=False)

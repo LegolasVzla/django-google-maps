@@ -1,4 +1,4 @@
-from .models import (User,Spots,Images,Tags,TypeUserActions,UserActions,
+from .models import (User,Spots,Images,Tags,TypesUserAction,UserActions,
 	SpotTags)
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
@@ -24,9 +24,9 @@ class TagsSerializer(serializers.ModelSerializer):
 		model = Tags
 		fields = ('__all__')
 
-class TypeUserActionsSerializer(serializers.ModelSerializer):
+class TypesUserActionSerializer(serializers.ModelSerializer):
 	class Meta:
-		model = TypeUserActions
+		model = TypesUserAction
 		fields = ('__all__')
 
 class UserActionsSerializer(serializers.ModelSerializer):

@@ -1,9 +1,9 @@
-from .models import (User,Spots,Images,Tags,TypeUserActions,UserActions,
-	SpotTags)
+from .models import (User,Spots,Images,Tags,TypesUserAction,
+	UserActions,SpotTags)
 from rest_framework import viewsets, permissions
 from rest_framework.permissions import IsAuthenticated
 from .serializers import (UserSerializer,SpotsSerializer,ImagesSerializer,
-	TagsSerializer,TypeUserActionsSerializer,UserActionsSerializer,
+	TagsSerializer,TypesUserActionSerializer,UserActionsSerializer,
 	SpotTagsSerializer)
 from django.contrib.auth import get_user_model
 
@@ -37,12 +37,12 @@ class TagsViewSet(viewsets.ModelViewSet):
 	]
 	serializer_class = TagsSerializer
 
-class TypeUserActionsViewSet(viewsets.ModelViewSet):
-	queryset = TypeUserActions.objects.all().filter(is_active=True,is_deleted=False).order_by('id')
+class TypesUserActionViewSet(viewsets.ModelViewSet):
+	queryset = TypesUserAction.objects.all()
 	permission_classes = [
 		permissions.AllowAny
 	]
-	serializer_class = TypeUserActionsSerializer
+	serializer_class = TypesUserActionSerializer
 
 class UserActionsViewSet(viewsets.ModelViewSet):
 	queryset = UserActions.objects.all()

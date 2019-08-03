@@ -1,0 +1,11 @@
+[
+    { "model": "api.typesuseraction",
+        "fields": {
+            "name": "Spot Tag",
+            "is_active": true,
+            "is_deleted": true,
+            "updated_date": "2019-08-03",
+            "created_date": "2019-08-03"                        
+        }
+    }    
+]
