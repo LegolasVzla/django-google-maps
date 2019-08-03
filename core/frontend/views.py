@@ -8,8 +8,8 @@ from rest_framework.views import APIView
 from core.settings import (API_KEY,FONT_AWESOME_KEY,defaultLat,defaultLng,
     max_distance)
 from rest_framework import status
-from api.models import (Spots)
-
+from api.models import (User,Spots,Images,Tags,TypesUserAction,
+    UserActions,SpotTags)
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.measure import Distance
 from decimal import Decimal
@@ -105,7 +105,7 @@ class SpotView(APIView):
 
     def post(self, request, *args, **kwargs):
         data = {}
-
+        
         # Request to create a new place
         if request.method == 'POST':
 
@@ -121,10 +121,49 @@ class SpotView(APIView):
                 postal_code=request.POST['postalCode'],                
                 lat=request.POST['latitude'],
                 lng=request.POST['length']
-                )
+            )
             spotData.save()
+            spot_id = Spots.objects.latest('id').id
 
+            if request.POST.get('tagList'):
 
+                # Generate a new user action with Type USer Action case: Spot Tag
+                user_action = UserActions(
+                    type_user_action_id=int(1),
+                    spot_id=spot_id
+                )
+                user_action.save()
+                user_action_id = UserActions.objects.latest('id').id
+
+                # Iterate over the tag list
+                for current_tag_name in request.POST.get('tagList').split(','):
+
+                    # Check if the current tag already exist
+                    if(Tags.objects.filter(name=current_tag_name,is_active=True,is_deleted=False).exists()):
+                        
+                        # Get the tag_id
+                        current_tag = Tags.objects.get(
+                            name=current_tag_name,
+                            is_active=True,
+                            is_deleted=False
+                        )
+                    else:
+                        
+                        # Generate the new tag
+                        current_tag = Tags(name=current_tag_name)
+                        current_tag.save()
+
+                    current_tag_id = Tags.objects.latest('id').id
+
+                    # Type User Action case: Spot Tag
+                    type_user_action = TypesUserAction.objects.get(id=int(1))
+
+                    # Generate a new spot tag
+                    spot_tag = SpotTags(
+                        user_action_id=user_action_id,
+                        tag_id=current_tag_id
+                    )
+                    spot_tag.save()
 
         else:
             data['code'] = status.HTTP_400_BAD_REQUEST
