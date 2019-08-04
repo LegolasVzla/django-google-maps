@@ -4,6 +4,7 @@ var temporalLatLng = {}
 var firstClick = false;
 var locationAux = null;
 var temporalSpotToEdit = null;
+var initialTags = [];
 
 // Function to get place information from latitude and lenght
 function reverse_geocoding(location) {
@@ -231,6 +232,11 @@ function spotEditModal(spotId) {
 		    $("#latitudeToEdit").val(data.lat)
 		    $("#lengthToEdit").val(data.lng)
 		    $(".spotIdToEdit").text(data.id)
+		    $('#jQuerytagEditorModalEdit').text()
+		    $('#jQuerytagEditorModalEdit').tagEditor({ 
+		    	initialTags: data.tagList /*, onChange: tag_classes*/ 
+			});
+
 		    temporalSpotToEdit = data.id
 
 		}else{

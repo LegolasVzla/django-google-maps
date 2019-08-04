@@ -68,7 +68,7 @@
                     <input class="form-control" type="text" id="placeName" value="" autofocus="" required="">
                   </div>
                   <div class="form-group"><b>Tags:</b>
-                    <div style="margin:0 0 1.2em"><textarea id="jQuerytagEditor"></textarea></div>
+                    <div style="margin:0 0 1.2em"><textarea id="jQuerytagEditorModalGet"></textarea></div>
                   </div>
                   <div class="form-group"><b>Latitude:</b>
                     <input class="form-control" id="latitude" value="" readonly="">
@@ -116,6 +116,9 @@
                   <div class="form-group"><b>Name:</b>
                     <input class="form-control" type="text" id="placeNameToEdit" value="" autofocus="" required="">
                   </div>
+                  <div class="form-group"><b>Tags:</b>
+                    <div style="margin:0 0 1.2em"><textarea id="jQuerytagEditorModalEdit"></textarea></div>
+                  </div>                  
                   <div class="form-group"><b>Latitude:</b>
                     <input class="form-control" id="latitudeToEdit" value="" type="text" readonly="">
                   </div>
@@ -207,9 +210,6 @@
   </body>
 </html>
 
-  <!-- Custom Functions for Google Maps -->
-  <script src="{% static 'js/custom/app.js' %}" charset="utf-8"></script>
-
   <!-- Jquery, Jquery UI -->
   <script src="{% static 'js/jquery/jquery-1.12.4.js' %}"></script>
   <script src="{% static 'js/jquery/ui/1.12.1/jquery-ui.js' %}"></script>
@@ -240,6 +240,10 @@
   <script src="{% static 'js/jQuerytagEditormaster/jquery.caret.min.js' %}"></script>
   <script src="{% static 'js/jQuerytagEditormaster/jquery.tag-editor.js' %}"></script>
 
+  <!-- Custom Functions for Google Maps -->
+  <script src="{% static 'js/custom/app.js' %}" charset="utf-8"></script>
+
+
   <script type="text/javascript">
     function tag_classes(field, editor, tags) {
         $('li', editor).each(function(){
@@ -249,6 +253,8 @@
             else li.removeClass('red-tag green-tag');
         });
     }
-    $('#jQuerytagEditor').tagEditor({ /*initialTags: ['custom', 'class', 'red', 'green', 'demo'], */onChange: tag_classes });
-    tag_classes(null, $('#jQuerytagEditor').tagEditor('getTags')[0].editor); // or editor == $('#jQuerytagEditor').next()    
+    $('#jQuerytagEditorModalGet').tagEditor();
+/*
+    tag_classes(null, $('#jQuerytagEditor').tagEditor('getTags')[0].editor); // or editor == $('#jQuerytagEditor').next()
+*/    
   </script>

@@ -96,6 +96,37 @@ class SpotView(APIView):
                 data['postal_code'] = json_response['postal_code']
                 data['lat'] = json_response['lat']
                 data['lng'] = json_response['lng']
+
+                '''If an user action list exist for the current spot with 
+                type_user_action equal to 'Spot Tag', get it'''
+                if(UserActions.objects.filter(
+                    spot_id=request.GET['spot_id'],
+                    type_user_action_id=1
+                ).exists()):
+
+                    # Get the user action id related with the spot
+                    user_action_id = UserActions.objects.get(
+                        spot_id=request.GET['spot_id'],
+                        type_user_action_id=1,
+                        is_active=True,
+                        is_deleted=False)
+
+                    # Get the tag list related with the user action
+                    spot_tag_list = SpotTags.objects.filter(
+                        user_action_id=user_action_id.id,
+                        is_active=True,
+                        is_deleted=False)
+
+                    # Get all the tag names related with the tag list
+                    tagList = []
+                    for current_tag in spot_tag_list:
+                        tag = Tags.objects.get(id=current_tag.tag_id)
+                        tagList.append(tag.name)
+                    data['tagList'] = tagList
+
+                else:
+                    data['tagList'] = []
+
                 data['code'] = status.HTTP_200_OK
 
         else:
@@ -200,7 +231,8 @@ class SpotView(APIView):
             spot.is_deleted = True
             spot.save()
 
-            # If an user action list exist for the current spot, delete it
+            '''If an user action list exist for the current spot with 
+            type_user_action equal to 'Spot Tag', delete it'''
             if(UserActions.objects.filter(
                 spot_id=request.POST.get('spot_id'),
                 type_user_action_id=1
