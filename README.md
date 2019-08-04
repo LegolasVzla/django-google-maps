@@ -85,6 +85,7 @@ The map will be setting in the 'defaultLat' and 'defaultLng' position.
 ## Models
 
 - Spots: table to store places of the users. This table contains a position (PostGIS geometry) column that works to store information of latitude and longitude in WGS 84 format.
+- Tags: table to store tags related with the spots
 
 ## Endpoints Structure for Spots API
 In a RESTful API, endpoints (URLs) define the structure of the API and how end users access data from our application using the HTTP methods (GET, POST, PUT, DELETE), making all posssible CRUD (create, retrieve, update, delete) operations.
@@ -94,7 +95,7 @@ In a RESTful API, endpoints (URLs) define the structure of the API and how end u
 Endpoint |HTTP Method | CRUD Method | Result
 -- | -- |-- |--
 `api/<instance>` | GET | READ | Get all the <instance> record
-`api/<instance>/:id` | GET | READ | Get a single <instance> reacord
+`api/<instance>/:id` | GET | READ | Get a single <instance> record
 `api/<instance>`| POST | CREATE | Create a new <instance> record
 `api/<instance>/:id` | PUT | UPDATE | Update a <instance> record
 `api/<instance>/:id` | DELETE | DELETE | Delete a <instance> record
@@ -103,13 +104,15 @@ Endpoint |HTTP Method | CRUD Method | Result
 
 - CRUD:
 
-1. Add a custom place (CREATE): in "GoogleMaps" tab, you can create a new spot doing click in a position of the map and then doing click in "Add a Place" buttom, fill up the form and save your spot.
+1. Add a custom place (CREATE): in "GoogleMaps" tab, you can create a new spot doing click in a position of the map and then doing click in "Add a Place" buttom, fill up the form and save your spot. Also, you can create a several list of tags for you place.
+
+![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/frontend/static/media/app_image1.jpeg "App Image")
 
 2. See spots details (READ): in "My Spot List" tab, you can see all the details of your spot list. 
 
 3. Edit spots (UPDATE): in "My Spot List" tab, you can edit spots.
 
-4. Remove a place (DELETE): in "My Spot List" tab, you can delete an spot in the garbage icon.
+4. Remove a place (DELETE): in "My Spot List" tab, you can delete an spot in the garbage icon. This action will delete the tags related with the spot if those tags doesn't exists for any other spot.
 
 - Nearby places: in "GoogleMaps" tab, you can display nearby places from your current position within 'max_distance'. The map will show your nearby places with the icon below:
 ![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/frontend/static/media/place_icon.png "Custom Spot")
