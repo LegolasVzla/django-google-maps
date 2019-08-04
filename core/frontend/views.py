@@ -105,7 +105,7 @@ class SpotView(APIView):
 
     def post(self, request, *args, **kwargs):
         data = {}
-        
+
         # Request to create a new place
         if request.method == 'POST':
 
@@ -129,7 +129,7 @@ class SpotView(APIView):
 
                 # Generate a new user action with Type USer Action case: Spot Tag
                 user_action = UserActions(
-                    type_user_action_id=int(1),
+                    type_user_action_id=1,
                     spot_id=spot_id
                 )
                 user_action.save()
@@ -139,7 +139,10 @@ class SpotView(APIView):
                 for current_tag_name in request.POST.get('tagList').split(','):
 
                     # Check if the current tag already exist
-                    if(Tags.objects.filter(name=current_tag_name,is_active=True,is_deleted=False).exists()):
+                    if(Tags.objects.filter(
+                        name=current_tag_name,
+                        is_active=True,
+                        is_deleted=False).exists()):
                         
                         # Get the tag_id
                         current_tag = Tags.objects.get(
@@ -156,7 +159,7 @@ class SpotView(APIView):
                     current_tag_id = Tags.objects.latest('id').id
 
                     # Type User Action case: Spot Tag
-                    type_user_action = TypesUserAction.objects.get(id=int(1))
+                    type_user_action = TypesUserAction.objects.get(id=1)
 
                     # Generate a new spot tag
                     spot_tag = SpotTags(
@@ -196,6 +199,55 @@ class SpotView(APIView):
             spot.is_active = False
             spot.is_deleted = True
             spot.save()
+
+            # If an user action list exist for the current spot, delete it
+            if(UserActions.objects.filter(
+                spot_id=request.POST.get('spot_id'),
+                type_user_action_id=1
+            )):
+
+                user_action_id = UserActions.objects.get(
+                    spot_id=request.POST.get('spot_id'),
+                    type_user_action_id=1,
+                    is_active=True,
+                    is_deleted=False)
+                user_action_id.is_active = False
+                user_action_id.is_deleted = True
+                user_action_id.save()
+
+                # Then, delete the spot_tag list related
+                user_action_id = UserActions.objects.get(
+                    spot_id=request.POST.get('spot_id'),
+                    type_user_action_id=1,
+                    is_active=False,
+                    is_deleted=True)
+
+                spot_tag_list = SpotTags.objects.filter(
+                    user_action_id=user_action_id.id,
+                    is_active=True,
+                    is_deleted=False)
+                spot_tag_list.update(is_active=False,is_deleted=True)
+
+                # Finally, check if it's necessary to delete any tag
+                spot_tag_list = SpotTags.objects.filter(
+                    user_action_id=user_action_id.id,
+                    is_active=False,
+                    is_deleted=True)
+
+                for current_spot_tag in spot_tag_list:
+                    '''If the current tag doesn't exists for any other spot, 
+                    delete it''' 
+                    if not(SpotTags.objects.filter(
+                        tag_id=current_spot_tag.tag_id,
+                        is_active=True,
+                        is_deleted=False
+                    )):
+
+                        tag = Tags.objects.get(id=current_spot_tag.tag_id)
+                        tag.is_active = False                    
+                        tag.is_deleted = True
+                        tag.save()
+
             data['placeName'] = spot.name
             data['code'] = status.HTTP_200_OK
 

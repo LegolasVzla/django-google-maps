@@ -262,6 +262,7 @@ function spotUpdate(){
 		        }, delayInMilliseconds);
 			  }else{
 			    console.log('Error, status:',data.code);
+			    alertify.error('Error updating the spot: ',data.placeName);
 			  }
 			}
 		})
