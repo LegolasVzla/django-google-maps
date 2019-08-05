@@ -4,7 +4,6 @@ var temporalLatLng = {}
 var firstClick = false;
 var locationAux = null;
 var temporalSpotToEdit = null;
-var initialTags = [];
 
 // Function to get place information from latitude and lenght
 function reverse_geocoding(location) {
@@ -115,7 +114,7 @@ function spotGetModal(defaultLat,defaultLng) {
 		    // Send data to the modal inputs
 		    $("#spotCreateShowModal").click(function(e){
 
-		      console.log("close modal",data)
+		      //console.log("close modal",data)
 		      e.preventDefault();
 		     // $("#spotCreateShowModal").modal('show');
 		    });
@@ -134,7 +133,7 @@ function spotCreate(defaultLat,defaultLng){
 		return;
 	}else{
 		spotData["placeName"]=$("#placeName").val();
-		spotData["tagList"]=$("#jQuerytagEditor").val()
+		spotData["tagList"]=$("#jQuerytagEditorModalGet").val()
 
 		$.ajax({
 		    url:'/spot/create/',
@@ -232,10 +231,16 @@ function spotEditModal(spotId) {
 		    $("#latitudeToEdit").val(data.lat)
 		    $("#lengthToEdit").val(data.lng)
 		    $(".spotIdToEdit").text(data.id)
-		    $('#jQuerytagEditorModalEdit').text()
-		    $('#jQuerytagEditorModalEdit').tagEditor({ 
-		    	initialTags: data.tagList /*, onChange: tag_classes*/ 
+
+			$('#jQuerytagEditorModalEdit').tagEditor({
+			      initialTags: data.tagList
 			});
+		    /*
+		    $('#remove_all_tags').click(function() {
+		        var tags = $('#jQuerytagEditorModalEdit').tagEditor('getTags')[0].tags;
+		        for (i=0;i<tags.length;i++){ $('#jQuerytagEditorModalEdit').tagEditor('removeTag', tags[i]); }
+		    });
+			*/
 
 		    temporalSpotToEdit = data.id
 
@@ -256,6 +261,9 @@ function spotUpdate(){
 		spotData["spotId"] = temporalSpotToEdit
 		temporalSpotToEdit = null
 
+		//var newTags = $('#jQuerytagEditorModalEdit').tagEditor('getTags')[0].tags;
+		//console.log("------New tag list:------",newTags)
+		//spotData["newTagList"] =  newTags
 		$.ajax({
 		    url:'/spot/update/',
 		    type: 'PUT',

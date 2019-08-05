@@ -118,7 +118,7 @@
                   </div>
                   <div class="form-group"><b>Tags:</b>
                     <div style="margin:0 0 1.2em"><textarea id="jQuerytagEditorModalEdit"></textarea></div>
-                  </div>                  
+                  </div>
                   <div class="form-group"><b>Latitude:</b>
                     <input class="form-control" id="latitudeToEdit" value="" type="text" readonly="">
                   </div>
@@ -240,21 +240,25 @@
   <script src="{% static 'js/jQuerytagEditormaster/jquery.caret.min.js' %}"></script>
   <script src="{% static 'js/jQuerytagEditormaster/jquery.tag-editor.js' %}"></script>
 
+
   <!-- Custom Functions for Google Maps -->
   <script src="{% static 'js/custom/app.js' %}" charset="utf-8"></script>
 
-
+  <!-- jQuerytagEditormaster -->
   <script type="text/javascript">
-    function tag_classes(field, editor, tags) {
-        $('li', editor).each(function(){
-            var li = $(this);
-            if (li.find('.tag-editor-tag').html() == 'red') li.addClass('red-tag');
-            else if (li.find('.tag-editor-tag').html() == 'green') li.addClass('green-tag')
-            else li.removeClass('red-tag green-tag');
-        });
-    }
-    $('#jQuerytagEditorModalGet').tagEditor();
-/*
-    tag_classes(null, $('#jQuerytagEditor').tagEditor('getTags')[0].editor); // or editor == $('#jQuerytagEditor').next()
-*/    
+    $('#jQuerytagEditorModalGet').tagEditor({
+      placeholder: 'Enter optional tags ...'
+    });
+    /*
+    // Remove all tags
+    var tags = $('#jQuerytagEditorModalGet').tagEditor('getTags')[0].tags;
+    for (i = 0; i < tags.length; i++) { $('#jQuerytagEditorModalGet').tagEditor('removeTag', tags[i]); }
+    */
   </script>
+  <!--
+  <script type="text/javascript">
+    $('#jQuerytagEditorModalEdit').tagEditor({
+      initialTags: data.tagList
+    });
+  </script>
+  -->

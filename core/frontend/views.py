@@ -189,9 +189,6 @@ class SpotView(APIView):
 
                     current_tag_id = Tags.objects.latest('id').id
 
-                    # Type User Action case: Spot Tag
-                    type_user_action = TypesUserAction.objects.get(id=1)
-
                     # Generate a new spot tag
                     spot_tag = SpotTags(
                         user_action_id=user_action_id,
@@ -206,6 +203,7 @@ class SpotView(APIView):
 
     def put(self, request, *args, **kwargs):
         data = {}
+        temporalTagList = ['funny','amazing']
 
         # User is sending spot data to update
         if request.method == 'PUT':
@@ -213,6 +211,163 @@ class SpotView(APIView):
             spot = Spots.objects.get(id=request.POST['spotId'])
             spot.name = request.POST['name']
             spot.save()
+
+            #if request.POST.get('tagList'):
+            if temporalTagList:
+
+                '''If an user action list exist for the current spot with
+                type_user_action equal to 'Spot Tag', get it'''
+                if(UserActions.objects.filter(
+                    spot_id=request.POST.get('spot_id'),
+                    type_user_action_id=1
+                )):
+
+                    user_action_id = UserActions.objects.get(
+                        spot_id=request.POST.get('spot_id'),
+                        type_user_action_id=1,
+                        is_active=True,
+                        is_deleted=False)
+
+                    # Get the spot tag list related
+                    spot_tag_list = SpotTags.objects.filter(
+                        user_action_id=user_action_id.id,
+                        is_active=True,
+                        is_deleted=False)                    
+
+                    # Get all the tag names related with the tag list
+                    tagList = []
+                    for current_tag in spot_tag_list:
+                        tag = Tags.objects.get(id=current_tag.tag_id)
+                        tagList.append(tag.name)
+                    data['tagList'] = tagList
+
+                    '''Case 1: The incoming tag list is the same that
+                    the stored current tag list'''
+                    if(data['tagList'] == temporalTagList):
+                        # Don't do anything
+                        print("It's the same tag list")
+                    # Case 2: The incoming tag list is different that
+                    # the stored current tag list
+                    else:
+                        new_tag_list = []
+                        for current_tag_stored in data['tagList']:
+                            
+                            '''if the current tag stored is not in the
+                            incoming tag list, delete it'''
+                            if not(current_tag_stored in temporalTagList):
+
+                                # Get the tag_id
+                                tag = Tags.objects.get(name=current_tag_stored)
+
+                                # Delete it in the spot tag
+                                spot_tag = SpotTags.objects.get(
+                                    user_action_id=user_action_id.id,
+                                    tag_id=tag.id,
+                                    is_active=True,
+                                    is_deleted=False)
+                                spot_tag.is_active = False
+                                spot_tag.is_deleted = True
+                                spot_tag.save()
+
+                                '''If the current tag doesn't exists for any other
+                                spot, delete it''' 
+                                if not(SpotTags.objects.filter(
+                                    tag_id=tag.id,
+                                    is_active=True,
+                                    is_deleted=False
+                                )):
+
+                                    tag.is_active = False
+                                    tag.is_deleted = True
+                                    tag.save()
+
+                            #The current tag stored is in the incoming tag
+                            # list, so keep it
+                            else:
+                                temporalTagList.remove(current_tag_stored)
+
+                        # Finally, create the new tag list
+                        for new_possible_tag in temporalTagList:
+                            
+                            # Check if the current tag already exist
+                            if(Tags.objects.get(
+                                name=new_possible_tag,
+                                is_active=True,
+                                is_deleted=False).exists()):
+                                
+                                # Get the tag_id
+                                current_tag = Tags.objects.get(
+                                    name=new_possible_tag,
+                                    is_active=True,
+                                    is_deleted=False
+                                )
+
+                            else:
+                                # Generate the new tag
+                                current_tag = Tags(name=new_possible_tag)
+                                current_tag.save()
+
+                            current_tag_id = Tags.objects.latest('id').id
+
+                            # Generate a new spot tag
+                            spot_tag = SpotTags(
+                                user_action_id=user_action_id.id,
+                                tag_id=current_tag_id
+                            )
+                            spot_tag.save()                            
+
+            # Case 3: The tag list is comming wihout any tag
+            else:
+
+                '''If an user action list exist for the current spot with
+                type_user_action equal to 'Spot Tag', delete it'''
+                if(UserActions.objects.filter(
+                    spot_id=request.POST.get('spot_id'),
+                    type_user_action_id=1
+                )):
+
+                    user_action_id = UserActions.objects.get(
+                        spot_id=request.POST.get('spot_id'),
+                        type_user_action_id=1,
+                        is_active=True,
+                        is_deleted=False)
+                    user_action_id.is_active = False
+                    user_action_id.is_deleted = True
+                    user_action_id.save()
+
+                    # Then, delete the spot_tag list related
+                    user_action_id = UserActions.objects.get(
+                        spot_id=request.POST.get('spot_id'),
+                        type_user_action_id=1,
+                        is_active=False,
+                        is_deleted=True)
+
+                    spot_tag_list = SpotTags.objects.filter(
+                        user_action_id=user_action_id.id,
+                        is_active=True,
+                        is_deleted=False)
+                    spot_tag_list.update(is_active=False,is_deleted=True)
+
+                    # Finally, check if it's necessary to delete any tag
+                    spot_tag_list = SpotTags.objects.filter(
+                        user_action_id=user_action_id.id,
+                        is_active=False,
+                        is_deleted=True)
+
+                    for current_spot_tag in spot_tag_list:
+                        '''If the current tag doesn't exists for any other spot, 
+                        delete it''' 
+                        if not(SpotTags.objects.filter(
+                            tag_id=current_spot_tag.tag_id,
+                            is_active=True,
+                            is_deleted=False
+                        )):
+
+                            tag = Tags.objects.get(id=current_spot_tag.tag_id)
+                            tag.is_active = False                    
+                            tag.is_deleted = True
+                            tag.save()
+
             data['code'] = status.HTTP_200_OK
 
         else:
