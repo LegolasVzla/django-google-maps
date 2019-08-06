@@ -1,6 +1,6 @@
 certifi==2019.6.16
 chardet==3.0.4
-Django==2.2.3
+Django==2.2.4
 djangorestframework==3.9.4
 idna==2.8
 pkg-resources==0.0.0
