@@ -120,6 +120,7 @@ function spotGetModal(defaultLat,defaultLng) {
 		    });
 		}else{
 		    console.log('Error to load modal',data.code);
+	        alertify.error('An error happened when loading this modal, please try again.');
 		  }
 		}
 	})
@@ -148,6 +149,7 @@ function spotCreate(defaultLat,defaultLng){
 		        }, delayInMilliseconds);
 			  }else{
 			    console.log('Error, status:',data.code);
+		        alertify.error('An error happened saving the spot, please try again.');
 			  }
 			}
 		})
@@ -246,6 +248,7 @@ function spotEditModal(spotId) {
 
 		}else{
 		    console.log('Error to load modal');
+	        alertify.error('An error happened when loading this modal, please try again.');		    
 		  }
 		}
 	})
