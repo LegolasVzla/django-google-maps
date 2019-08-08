@@ -107,9 +107,35 @@ function spotGetModal(defaultLat,defaultLng) {
 
 		  	spotData = {};
 
+		  	
+			/* This is another alternative instead of use geopy in backend
+		  	Uncomment the below section if you want to use
+		  	reverse_geocoding() function */
+
 			// Get information about the current place
-			latlng = new google.maps.LatLng(latitude,length);
-		  	reverse_geocoding(latlng);
+			//latlng = new google.maps.LatLng(latitude,length);
+
+		  	// reverse_geocoding(latlng);
+
+		    $("#country").val(data.country)
+		    $("#countryCode").val(data.country_code)
+		    $("#stateName").val(data.state_name)
+		    $("#city").val(data.city_name)
+		    $("#postalCode").val(data.postal_code)
+		    $("#fullAddress").text(data.full_address)
+		    $("#latitude").val(latitude)
+		    $("#length").val(length)
+
+			spotData["country"]=data.country;
+			spotData["countryCode"]=data.country_code;
+			spotData["state_name"]=data.state_name;
+			spotData["city"]=data.city_name;
+			spotData["postalCode"]=data.postal_code;
+			spotData["fullAddress"]=data.full_address;
+			spotData["latitude"]=latitude;
+			spotData["length"]=length;
+			//-------------------------------------
+
 
 		    // Send data to the modal inputs
 		    $("#spotCreateShowModal").click(function(e){

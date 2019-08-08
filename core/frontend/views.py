@@ -14,6 +14,8 @@ from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.measure import Distance
 from decimal import Decimal
 
+from geopy.geocoders import Nominatim
+
 import json
 import requests
 
@@ -31,7 +33,7 @@ class IndexView(APIView):
         else:
             content['fontawesome_key'] = ''
         content['defaultLat'] = defaultLat 
-        content['defaultLng'] = defaultLng         
+        content['defaultLng'] = defaultLng
 
         try:
             content['data'] = json_response
@@ -39,14 +41,7 @@ class IndexView(APIView):
             content['data'] = {'name':'Not found information'}
         #print(content)
         return render(request, 'index.html',content)
-'''
-class DemoView(APIView):
 
-def get(self, request, *args, **kwargs):
-content = {}
-content["message"] = 'Hello World'
-return render(request, 'demo.html',content)
-'''
 class SpotView(APIView):
 
     def get(self, request, *args, **kwargs):
@@ -59,6 +54,20 @@ class SpotView(APIView):
                 data['code'] = status.HTTP_200_OK
                 data['lat'] = request.GET['lat']
                 data['lng'] = request.GET['lng']
+                geolocator = Nominatim(user_agent="My_django_google_maps_app")
+                location = geolocator.reverse(request.GET['lat']+", "+request.GET['lng'])
+                try:
+                    if(location):
+                        json_resulting['country_name']=location.raw['address']['country']
+                        json_resulting['country_code']=location.raw['address']['country_code']
+                        json_resulting['state_name']=location.raw['address']['state']
+                        json_resulting['city_name']=location.raw['address']['city']
+                        json_resulting['postal_code']=location.raw['address']['postcode']
+                        json_resulting['full_address']=location.['display_name']
+
+                except Exception as e:
+                    for i,j in json_resulting.items():
+                        json_resulting[i] = "undefined"
 
             # Request to display nearby places
             elif request.GET['action']== "get_nearby_places":
