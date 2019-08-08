@@ -91,7 +91,9 @@
                   <div class="form-group"><b>Postal Code:</b>
                     <input class="form-control" id="postalCode" value="" type="text" readonly="">
                   </div>
-                  <div style="margin:0 0 1.2em"><textarea id="fullAddress" readonly=""></textarea></div>
+                  <div class="form-group"><b>Full Address:</b>
+                    <textarea style="resize:none" class="form-control" id="fullAddress" readonly=""></textarea>
+                  </div>
                   <div class="modal-footer">
                     <input class="btn btn-success" type="submit" onclick='spotCreate({{defaultLat}},{{defaultLng}})' value="Guardar" />
                     <button type="button" class="btn btn-default" onclick="cleanAllTagsModalGet()" data-dismiss="modal">Close</button>
@@ -135,11 +137,17 @@
                   <div class="form-group"><b>Country Code:</b>
                     <input class="form-control" id="countryCodeToEdit" value="" type="text" readonly="">
                   </div>
+                  <div class="form-group"><b>State:</b>
+                    <input class="form-control" id="stateToEdit" value="" type="text" readonly="">
+                  </div>
+                  <div class="form-group"><b>City:</b>
+                    <input class="form-control" id="cityToEdit" value="" type="text" readonly="">
+                  </div>
                   <div class="form-group"><b>Postal Code:</b>
                     <input class="form-control" id="postalCodeToEdit" value="" type="text" readonly="">
                   </div>                  
-                  <div class="form-group"><b>City:</b>
-                    <input class="form-control" id="cityToEdit" value="" type="text" readonly="">
+                  <div class="form-group"><b>Full Address:</b>
+                    <textarea style="resize:none" class="form-control" id="fullAddressToEdit" readonly=""></textarea>
                   </div>
                   <div class="modal-footer">
                     <input class="btn btn-success" type="submit" onclick='spotUpdate()' value="Guardar" />
@@ -179,7 +187,8 @@
                 <th>Lat</th>
                 <th>Long</th>
                 <th>Country</th>
-                <th>Country Code</th>                
+                <th>State</th>
+                <!--<th>Country Code</th>-->
                 <th>City</th>
                 <th>Postal Code</th>
                 <th>Edit</th>
@@ -194,7 +203,8 @@
                 <td>{{ key.lat }}</td>
                 <td>{{ key.lng }}</td>
                 <td>{{ key.country }}</td>
-                <td>{{ key.country_code }}</td>
+                <td>{{ key.state }}</td>
+                <!--<td>{{ key.country_code }}</td>-->
                 <td>{{ key.city }}</td>
                 <td>{{ key.postal_code }}</td>                
                 <td>

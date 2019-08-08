@@ -107,7 +107,6 @@ function spotGetModal(defaultLat,defaultLng) {
 
 		  	spotData = {};
 
-		  	
 			/* This is another alternative instead of use geopy in backend
 		  	Uncomment the below section if you want to use
 		  	reverse_geocoding() function */
@@ -117,7 +116,7 @@ function spotGetModal(defaultLat,defaultLng) {
 
 		  	// reverse_geocoding(latlng);
 
-		    $("#country").val(data.country)
+		    $("#country").val(data.country_name)
 		    $("#countryCode").val(data.country_code)
 		    $("#stateName").val(data.state_name)
 		    $("#city").val(data.city_name)
@@ -126,7 +125,7 @@ function spotGetModal(defaultLat,defaultLng) {
 		    $("#latitude").val(latitude)
 		    $("#length").val(length)
 
-			spotData["country"]=data.country;
+			spotData["country"]=data.country_name;
 			spotData["countryCode"]=data.country_code;
 			spotData["state_name"]=data.state_name;
 			spotData["city"]=data.city_name;
@@ -135,7 +134,6 @@ function spotGetModal(defaultLat,defaultLng) {
 			spotData["latitude"]=latitude;
 			spotData["length"]=length;
 			//-------------------------------------
-
 
 		    // Send data to the modal inputs
 		    $("#spotCreateShowModal").click(function(e){
@@ -252,10 +250,12 @@ function spotEditModal(spotId) {
 		    // Send data to the modal inputs
 		    $(".spotName").text(data.spotName)
 		    $("#placeNameToEdit").val(data.spotName)
-		    $("#cityToEdit").val(data.city)
-		    $("#countryToEdit").val(data.country)
+		    $("#countryToEdit").val(data.country_name)
 		    $("#countryCodeToEdit").val(data.country_code)
+		    $("#stateToEdit").val(data.state_name)
+		    $("#cityToEdit").val(data.city_name)
 		    $("#postalCodeToEdit").val(data.postal_code)
+		    $("#fullAddressToEdit").val(data.full_address)
 		    $("#latitudeToEdit").val(data.lat)
 		    $("#lengthToEdit").val(data.lng)
 		    $(".spotIdToEdit").text(data.id)

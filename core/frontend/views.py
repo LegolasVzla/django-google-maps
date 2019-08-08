@@ -18,6 +18,7 @@ from geopy.geocoders import Nominatim
 
 import json
 import requests
+import logging
 
 # Create your views here.
 class IndexView(APIView):
@@ -54,20 +55,25 @@ class SpotView(APIView):
                 data['code'] = status.HTTP_200_OK
                 data['lat'] = request.GET['lat']
                 data['lng'] = request.GET['lng']
-                geolocator = Nominatim(user_agent="My_django_google_maps_app")
-                location = geolocator.reverse(request.GET['lat']+", "+request.GET['lng'])
                 try:
+                    geolocator = Nominatim(user_agent="My_django_google_maps_app")
+                    location = geolocator.reverse(request.GET['lat']+", "+request.GET['lng'])
                     if(location):
-                        json_resulting['country_name']=location.raw['address']['country']
-                        json_resulting['country_code']=location.raw['address']['country_code']
-                        json_resulting['state_name']=location.raw['address']['state']
-                        json_resulting['city_name']=location.raw['address']['city']
-                        json_resulting['postal_code']=location.raw['address']['postcode']
-                        json_resulting['full_address']=location.['display_name']
-
+                        data['country_name']=location.raw['address']['country']
+                        try:
+                            data['country_code']=location.raw['address']['country_code'].upper()
+                            data['state_name']=location.raw['address']['state']
+                        except Exception as e:
+                            data["city_name"]="undefined"
+                        try:
+                            data['city_name']=location.raw['address']['city']
+                        except Exception as e:
+                            data["city_name"]="undefined"
+                        data['postal_code']=location.raw['address']['postcode']
+                        data['full_address']=location.raw['display_name']
                 except Exception as e:
-                    for i,j in json_resulting.items():
-                        json_resulting[i] = "undefined"
+                    for i,j in data.items():
+                        data[i] = "undefined"
 
             # Request to display nearby places
             elif request.GET['action']== "get_nearby_places":
@@ -105,10 +111,12 @@ class SpotView(APIView):
                     json_response = json.loads(response)
                     data['id'] = json_response['id']
                     data['spotName'] = json_response['name']
-                    data['country'] = json_response['country']
+                    data['country_name'] = json_response['country']
                     data['country_code'] = json_response['country_code']
-                    data['city'] = json_response['city']
+                    data['state_name'] = json_response['state']
+                    data['city_name'] = json_response['city']
                     data['postal_code'] = json_response['postal_code']
+                    data['full_address'] = json_response['full_address']
                     data['lat'] = json_response['lat']
                     data['lng'] = json_response['lng']
 
