@@ -15,6 +15,7 @@ from django.contrib.gis.measure import Distance
 from decimal import Decimal
 
 from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderTimedOut
 
 import json
 import requests
@@ -56,22 +57,32 @@ class SpotView(APIView):
                 data['lat'] = request.GET['lat']
                 data['lng'] = request.GET['lng']
                 try:
-                    geolocator = Nominatim(user_agent="My_django_google_maps_app")
+                    geolocator = Nominatim(user_agent="My_django_google_maps_app",timeout=3)
                     location = geolocator.reverse(request.GET['lat']+", "+request.GET['lng'])
                     if(location):
-                        data['country_name']=location.raw['address']['country']
                         try:
+                            data['country_name']=location.raw['address']['country']
                             data['country_code']=location.raw['address']['country_code'].upper()
+                        except Exception as e:
+                            data["country_name"]="undefined"
+                            data["country_code"]="undefined"
+                        try:
                             data['state_name']=location.raw['address']['state']
                         except Exception as e:
-                            data["city_name"]="undefined"
+                            data["state_name"]="undefined"
                         try:
                             data['city_name']=location.raw['address']['city']
                         except Exception as e:
                             data["city_name"]="undefined"
-                        data['postal_code']=location.raw['address']['postcode']
-                        data['full_address']=location.raw['display_name']
-                except Exception as e:
+                        try:
+                            data['postal_code']=location.raw['address']['postcode']
+                        except Exception as e:
+                            data["postal_code"]="undefined"
+                        try:
+                            data['full_address']=location.raw['display_name']
+                        except Exception as e:
+                            data['full_address']="undefined"
+                except (GeocoderTimedOut) as e:
                     for i,j in data.items():
                         data[i] = "undefined"
 
