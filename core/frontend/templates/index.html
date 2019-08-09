@@ -171,7 +171,7 @@
           <div class="container">
             <div id='gmap_canvas' style='height:350px;width:100%;'></div><br>
             <div class="btn-group">
-              <button type="submit" class="btn btn-primary" data-toggle="modal" onclick='spotGetModal({{defaultLat}},{{defaultLng}})' data-target="#spotCreateShowModal"><i class="fa fa-map-marker" title="Add Place" aria-hidden="true"></i> Add Place</button>
+              <button type="submit" id="btn-search" class="btn btn-primary" data-toggle="modal" onclick='spotGetModal({{defaultLat}},{{defaultLng}})' data-target="#spotCreateShowModal"><i class="fa fa-map-marker" title="Add Place" aria-hidden="true"></i> Add Place</button>
             </div>
             <div class="btn-group">            
               <button type="submit" class="btn btn-info" onclick='spotNearBy({{defaultLat}},{{defaultLng}})'><i class="fas fa-location-arrow" title="Show me Nearby Places" aria-hidden="true"></i> Show me Nearby Places</button>
@@ -283,3 +283,28 @@
     });
   </script>
   -->
+
+<div class="load-lupa" style="background: rgba(26, 135, 197, 0.72) none repeat scroll 0% 0%;width: 100%;height: 100%;position: absolute;left: 0;right: 0;bottom: 0;top: 0;margin: auto;position: fixed;z-index: 10;display: none;">
+  <img src="{% static 'media/Magnify.gif' %}" width="70" height="70" style="width: 100px;height: 100px;position: absolute;left: 17%;right: 0;top: 3%;margin: auto;bottom: 0;" />
+</div>
+
+<script type="text/javascript">
+$("#btn-search").click(function(){
+var form = $(this).closest("form");
+  //console.log("Searching...");
+  $.ajax({
+      type : 'GET',
+      data : form.serialize(),
+      beforeSend: function() {
+          $(".load-lupa").fadeIn();
+      },
+      success : function(data){
+        $(".load-lupa").fadeOut();
+      },
+      error: function(data){
+        console.log('Fail')
+        $(".load-lupa").fadeOut();        
+     }               
+  });
+});
+</script> 
