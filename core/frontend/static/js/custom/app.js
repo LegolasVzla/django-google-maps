@@ -260,9 +260,10 @@ function spotEditModal(spotId) {
 		    $("#lengthToEdit").val(data.lng)
 		    $(".spotIdToEdit").text(data.id)
 
-			$('#jQuerytagEditorModalEdit').tagEditor({
-			      initialTags: data.tagList
-			});
+		    $('#jQuerytagEditorModalEdit').tagEditor('addTag', data.tagList);
+
+			//$('#jQuerytagEditorModalEdit').tagEditor({initialTags: data.tagList});
+		    
 		    /*
 		    $('#remove_all_tags').click(function() {
 		        var tags = $('#jQuerytagEditorModalEdit').tagEditor('getTags')[0].tags;

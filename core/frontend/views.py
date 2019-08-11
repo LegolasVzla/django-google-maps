@@ -4,7 +4,6 @@ from django.http import (HttpResponse, HttpResponseForbidden,
 	HttpResponseRedirect)
 #from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.views import APIView
-#from rest_framework.permissions import IsAuthenticated
 from core.settings import (API_KEY,FONT_AWESOME_KEY,defaultLat,defaultLng,
     max_distance)
 from rest_framework import status
@@ -41,7 +40,6 @@ class IndexView(APIView):
             content['data'] = json_response
         except Exception as e:
             content['data'] = {'name':'Not found information'}
-        #print(content)
         return render(request, 'index.html',content)
 
 class SpotView(APIView):
