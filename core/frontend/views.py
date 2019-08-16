@@ -171,7 +171,7 @@ class SpotView(APIView):
 
     def post(self, request, *args, **kwargs):
         data = {}
-
+        
         # Request to create a new place
         if request.method == 'POST':
 
