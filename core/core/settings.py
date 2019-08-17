@@ -34,6 +34,11 @@ defaultLng = config.get('googleMapsConf', 'defaultLng')
 # GEOSGeometry Config
 max_distance = config.get('GEOSGeometryConf', 'max_distance')
 
+# Amazon S3 Config
+S3_ACCESS_KEY = config.get('amazonS3Conf', 'S3_ACCESS_KEY')
+S3_SECRET_KEY = config.get('amazonS3Conf', 'S3_SECRET_KEY')
+s3_bucket_name = config.get('amazonS3Conf', 's3_bucket_name')
+
 # Fond awesome Config
 try:
     FONT_AWESOME_KEY=config.get('font-awesomeConf', 'KEY')

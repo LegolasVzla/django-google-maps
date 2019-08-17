@@ -5,7 +5,7 @@ from django.http import (HttpResponse, HttpResponseForbidden,
 #from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.views import APIView
 from core.settings import (API_KEY,FONT_AWESOME_KEY,defaultLat,defaultLng,
-    max_distance)
+    max_distance,S3_ACCESS_KEY,S3_SECRET_KEY,s3_bucket_name)
 from rest_framework import status
 from api.models import (User,Spots,Images,Tags,TypesUserAction,
     UserActions,SpotTags)
@@ -15,6 +15,9 @@ from decimal import Decimal
 
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut
+
+import boto3
+from botocore.exceptions import NoCredentialsError
 
 import json
 import requests
@@ -192,6 +195,21 @@ class SpotView(APIView):
                 spotData.save()
                 spot_id = Spots.objects.latest('id').id
 
+                if request.POST.get('image'):
+
+                    local_file = '<path_to_the_file>'
+                    filename = request.POST.get('placeName')
+                    user_id = 1
+                    s3_env_folder_name = 'dev/spots'
+                    key = '{}/{}/{}'.format(s3_env_folder_name,user_id,filename)
+
+                    s3 = boto3.client('s3', aws_access_key_id=ACCESS_KEY,aws_secret_access_key=SECRET_KEY)
+                    s3.upload_file(local_file, s3_bucket_name, key, ExtraArgs={'ACL':'public-read'})
+                    print("Upload Successful")
+                    bucket_location = s3.get_bucket_location(Bucket=s3_bucket_name)
+                    #file_url = '{}/{}/{}/{}'.format(s3.meta.endpoint_url, s3_bucket_name, s3_env_folder_name, filename)
+                    file_url = "https://s3-{0}.amazonaws.com/{1}/{2}/{3}/{4}".format(bucket_location['LocationConstraint'],s3_bucket_name,s3_env_folder_name,user_id,filename)
+
                 if request.POST.get('tagList'):
 
                     # Generate a new user action with Type USer Action case: Spot Tag
@@ -234,6 +252,13 @@ class SpotView(APIView):
 
             except Exception as e:
                 logging.getLogger('error_logger').error("Error Creating a new spot: " + str(e))
+                data['code'] = status.HTTP_500_INTERNAL_SERVER_ERROR
+            except FileNotFoundError:
+                logging.getLogger('error_logger').error("Error Saving the image, the file was not found: " + str(e))
+                data['code'] = status.HTTP_500_INTERNAL_SERVER_ERROR
+            except NoCredentialsError:
+                logging.getLogger('error_logger').error("Error Saving the image, AWS S3 credentials not available: " + str(e))
+                data['code'] = status.HTTP_500_INTERNAL_SERVER_ERROR
 
         else:
             data['code'] = status.HTTP_400_BAD_REQUEST
