@@ -10,6 +10,10 @@ Basic example of how to use Google Maps with Django and PostGIS
 
 - [PostGIS](http://postgis.net/) is a spatial database extender for PostgreSQL object-relational database. It adds support for geographic objects allowing location queries to be run in SQL.
 
+We also store images in Amazon S3:
+
+- [Amazon S3](https://aws.amazon.com/s3/): Amazon Simple Storage Service (Amazon S3) is an object storage service that offers industry-leading scalability, data availability, security, and performance. 
+
 ## Requirements
 - Ubuntu 18
 - Install PostgreSQL:
@@ -56,6 +60,11 @@ Create a **settings.ini** file, with the structure as below:
  	API_KEY=yourGoogleAPIKey
 	defaultLat=<Your_default_latitude>
  	defaultLng=<Your_default_lingitude>
+
+	[amazonS3Conf]
+	S3_ACCESS_KEY=<Your_access_key>
+	S3_SECRET_KEY=<Your_secret_key>
+	s3_bucket_name=<Your_bucket_name>
 
 By default, DB_HOST and DB_PORT in PostgreSQL are localhost/5432. A 'max_distance' suggested could be from 1-5 kilometers, to display nearby places. Also, if you have a Font Awesome key for icons, you can add it in the **settings.ini** file:
 
