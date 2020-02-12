@@ -2,7 +2,7 @@ boto3==1.9.210
 botocore==1.12.210
 certifi==2019.6.16
 chardet==3.0.4
-Django==2.2.4
+Django==2.2.10
 djangorestframework==3.9.4
 docutils==0.15.2
 geographiclib==1.49
