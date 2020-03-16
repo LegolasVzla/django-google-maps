@@ -19,11 +19,12 @@ We also store images in Amazon S3:
 - Install PostgreSQL:
 ```
   sudo apt-get update
-  sudo apt install python3-dev postgresql postgresql-contrib python3-psycopg2 libpq-dev
+  sudo apt install python3-dev postgresql postgresql-contrib python3-psycopg2 libpq-dev -y
 ```
 - Install PostGIS
 ```
-  sudo apt-get install postgis
+  sudo apt-get install -y postgis postgresql-10-postgis-2.4 python-psycopg2
+  sudo -u postgres psql -c "CREATE EXTENSION postgis;"
 ```
 
 ## Installation
