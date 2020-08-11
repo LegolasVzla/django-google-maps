@@ -23,10 +23,10 @@
     <!-- include a theme -->
     <link rel="stylesheet" href="{% static 'css/alertifyjs/themes/default.min.css' %} "/>
 
-    {% if fontawesome_key %}
+    {% if data.fontawesome_key %}
 
       <!-- Font Awesome Icons -->
-      <script src="https://kit.fontawesome.com/{{fontawesome_key}}.js"></script>
+      <script src="https://kit.fontawesome.com/{{data.fontawesome_key}}.js"></script>
 
     {% endif %}
 
@@ -47,9 +47,9 @@
       .tag-editor .green-tag .tag-editor-delete { background-color: #e1f3da; }
     </style>
 
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ data.api_key }}" async defer></script>
   </head>
-  <body onload="load_map({{defaultLat}},{{defaultLng}})">
+  <body onload="load_map({{data.defaultLat}},{{data.defaultLng}})">
 
     <!-- Add Spot -->
     <div class="container">
@@ -95,7 +95,7 @@
                     <textarea style="resize:none" class="form-control" id="fullAddress" readonly=""></textarea>
                   </div>
                   <div class="modal-footer">
-                    <input class="btn btn-success" type="submit" onclick='spotCreate({{defaultLat}},{{defaultLng}})' value="Guardar" />
+                    <input class="btn btn-success" type="submit" onclick='spotCreate({{data.defaultLat}},{{data.defaultLng}})' value="Guardar" />
                     <button type="button" class="btn btn-default" onclick="cleanAllTagsModalGet()" data-dismiss="modal">Close</button>
                   </div>
                 </fieldset>
@@ -171,10 +171,10 @@
           <div class="container">
             <div id='gmap_canvas' style='height:350px;width:100%;'></div><br>
             <div class="btn-group">
-              <button type="submit" id="btn-search" class="btn btn-primary" data-toggle="modal" onclick='spotGetModal({{defaultLat}},{{defaultLng}})' data-target="#spotCreateShowModal"><i class="fa fa-map-marker" title="Add Place" aria-hidden="true"></i> Add Place</button>
+              <button type="submit" id="btn-search" class="btn btn-primary" data-toggle="modal" onclick='spotGetModal({{data.defaultLat}},{{data.defaultLng}})' data-target="#spotCreateShowModal"><i class="fa fa-map-marker" title="Add Place" aria-hidden="true"></i> Add Place</button>
             </div>
             <div class="btn-group">            
-              <button type="submit" class="btn btn-info" onclick='spotNearBy({{defaultLat}},{{defaultLng}})'><i class="fas fa-location-arrow" title="Show me Nearby Places" aria-hidden="true"></i> Show me Nearby Places</button>
+              <button type="submit" class="btn btn-info" onclick='spotNearBy({{data.defaultLat}},{{data.defaultLng}})'><i class="fas fa-location-arrow" title="Show me Nearby Places" aria-hidden="true"></i> Show me Nearby Places</button>
             </div>
           </div>
       </div>
@@ -192,11 +192,12 @@
                 <th>City</th>
                 <th>Postal Code</th>
                 <th>Edit</th>
-                <th>Delete</th>                
+                <th>Delete</th>
+                <th>Created Date</th>
             </tr>
         </thead>
         <tbody>
-            {% for key in data %}
+            {% for key in data.spots %}
             <tr>
                 <td>{{forloop.counter}}</td>
                 <td>{{ key.name }}</td>
@@ -206,13 +207,14 @@
                 <td>{{ key.state }}</td>
                 <!--<td>{{ key.country_code }}</td>-->
                 <td>{{ key.city }}</td>
-                <td>{{ key.postal_code }}</td>                
+                <td>{{ key.postal_code }}</td>
                 <td>
                   <center><button type="submit" class="btn btn-flat" style="background-color:#f5f5f5;" data-toggle="modal" onclick='spotEditModal({{key.id}})' data-target="#spotUpdateShowModal"><img data-toggle='tooltip' title='Edit Place' src='/static/media/edit.png' width='12' height='14'></button></center>
                 </td>
                 <td>
                   <center><button type="submit" data-spotId="{{key.id}}" class="btn btn-flat" style="background-color:#f5f5f5;" onclick='spotRemove({{key.id}})' ><img data-toggle='tooltip' title='Delete Place' src='/static/media/delete.png' width='12' height='14'></button></center>
                 </td>
+                <td>{{key.created_date}}</td>
             </tr>
             {% endfor %}
         <tbody>

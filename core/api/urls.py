@@ -13,7 +13,9 @@ router.register('api/types_user_action', TypesUserActionViewSet, 'types_user_act
 router.register('api/user_actions', UserActionsViewSet, 'user_actions')
 router.register('api/spot_tags', SpotTagsViewSet, 'spot_tags')
 
-urlpatterns = []
+urlpatterns = [
+    url(r'^api/spots/user_places/user/<int:user>', SpotsViewSet.as_view({'post': 'user_places'}), name='spots')
+]
 
 urlpatterns += router.urls
 

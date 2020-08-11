@@ -10,9 +10,7 @@ from django.db import migrations
 #from datetime import datetime
 User = get_user_model()
 
-
 class Migration(migrations.Migration):
-
     operations = [
         CreateExtension('postgis'),
     ]

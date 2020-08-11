@@ -23,27 +23,42 @@ import json
 import requests
 import logging
 
+
+from django.views.generic import View
+from api.api import (SpotsViewSet)
+
 # Create your views here.
-class IndexView(APIView):
+class IndexView(View):
+
+    def __init__(self,*args, **kwargs):
+        self.response_data = {'error': [], 'data': {}}
+        self.code = 200
 
     def get(self, request, *args, **kwargs):
-        content = {}
-        response = requests.get("http://localhost:8000/api/spots/")
-        response = response.content.decode('utf-8')
-        json_response = json.loads(response)
-        content['api_key'] = API_KEY
-        if FONT_AWESOME_KEY:
-            content['fontawesome_key'] = FONT_AWESOME_KEY
-        else:
-            content['fontawesome_key'] = ''
-        content['defaultLat'] = defaultLat 
-        content['defaultLng'] = defaultLng
-
+        _spots = SpotsViewSet()
+        _spots.user_places(request,user='1')
         try:
-            content['data'] = json_response
+            if _spots.code == 200:
+
+                response = _spots.response_data['data'][0]['spots']
+                self.response_data['data']['api_key'] = API_KEY
+
+                if FONT_AWESOME_KEY:
+                    self.response_data['data']['fontawesome_key'] = FONT_AWESOME_KEY
+                else:
+                    self.response_data['data']['fontawesome_key'] = ''
+
+                self.response_data['data']['defaultLat'] = defaultLat 
+                self.response_data['data']['defaultLng'] = defaultLng
+
+                self.response_data['data']['spots'] = response
+
+            else:
+                self.response_data = self.response_data['data']
+
         except Exception as e:
             content['data'] = {'name':'Not found information'}
-        return render(request, 'index.html',content)
+        return render(request,template_name='frontend/index.html',status=self.code,context=self.response_data)
 
 class SpotView(APIView):
 
@@ -203,7 +218,7 @@ class SpotView(APIView):
                     s3_env_folder_name = 'dev/spots'
                     key = '{}/{}/{}'.format(s3_env_folder_name,user_id,filename)
 
-                    s3 = boto3.client('s3', aws_access_key_id=ACCESS_KEY,aws_secret_access_key=SECRET_KEY)
+                    s3 = boto3.client('s3', aws_access_key_id=S3_ACCESS_KEY,aws_secret_access_key=S3_SECRET_KEY)
                     s3.upload_file(local_file, s3_bucket_name, key, ExtraArgs={'ACL':'public-read'})
                     print("Upload Successful")
                     bucket_location = s3.get_bucket_location(Bucket=s3_bucket_name)
