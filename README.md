@@ -1,7 +1,7 @@
 # django-google-maps
 Basic example of how to use Google Maps with Django and PostGIS 
 
-![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/frontend/static/media/app_image.jpeg "App Image")
+![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/static/media/app_image.jpeg "App Image")
 
 ## Technologies
 - [Django REST framework](https://www.django-rest-framework.org/) is a powerful and flexible toolkit for building Web APIs.
@@ -9,8 +9,6 @@ Basic example of how to use Google Maps with Django and PostGIS
 - [PostgreSQL](https://www.postgresql.org/) is the World's Most Advanced Open Source Relational Database.
 
 - [PostGIS](http://postgis.net/) is a spatial database extender for PostgreSQL object-relational database. It adds support for geographic objects allowing location queries to be run in SQL.
-
-We also store images in Amazon S3:
 
 - [Amazon S3](https://aws.amazon.com/s3/): Amazon Simple Storage Service (Amazon S3) is an object storage service that offers industry-leading scalability, data availability, security, and performance. 
 
@@ -33,18 +31,11 @@ Clone this project:
 
 	git clone https://github.com/LegolasVzla/django-google-maps.git
 
-Create your virtualenv and install the requirements:
+```Makefile``` will help you with all the installation. First of all, in ```django-google-maps/core/``` path, execute:
 
-	virtualenv env --python=python3
-	source env/bin/activate
+	make setup
 
-	pip install -r requirements.txt
-
-In "django-google-maps/core/" path, create logs folder:
-
-	mkdir logs
-
-Create a **settings.ini** file, with the structure as below:
+This will install PostgreSQL, PostGIS and pip on your system. After that, you need to create and fill up **settings.ini** file, with the structure as below:
 
 	[postgresdbConf]
 	DB_ENGINE=django.contrib.gis.db.backends.postgis
@@ -67,24 +58,30 @@ Create a **settings.ini** file, with the structure as below:
 	S3_SECRET_KEY=<Your_secret_key>
 	s3_bucket_name=<Your_bucket_name>
 
-By default, DB_HOST and DB_PORT in PostgreSQL are localhost/5432. A 'max_distance' suggested could be from 1-5 kilometers, to display nearby places. Also, if you have a Font Awesome key for icons, you can add it in the **settings.ini** file:
-
 	[font-awesomeConf]
-	KEY=your_key
+	KEY=<Your_key>
 
-Then, run the migrations:
+- postgresdbConf section: fill in with your own PostgreSQL credentials. By default, DB_HOST and DB_PORT in PostgreSQL are localhost/5432. 
 
-	python manage.py makemigrations
+- GEOSGeometryConf section: a 'max_distance' suggested could be from 1-5 kilometers, to display nearby places. 
 
-	python manage.py migrate
+- googleMapsConf section: google maps API KEY needed to load the map, also a default lat and longitude to focus your map
 
-Generate default data with the fixtures:
+- font-awesomeConf section: optional, if you have a Font Awesome key for icons
 
-	python3 fixtures_load.py
+Then, activate your virtualenv already installed (by default, is called ```env``` in the ```Makefile```):
 
-And finally, run the server:
+	source env/bin/activate
 
-	python manage.py runserver
+And execute:
+
+	make install
+
+This will generate the database with default data and also it will install python requirements and nltk resources. Default credentials for admin superuser are: admin@admin.com / admin. 
+
+Run django server (by default, host and port are set as 127.0.0.1 and 8000 respectively in the ```Makefile```):
+
+	make execute
 
 You could see the home page in:
 
@@ -116,7 +113,7 @@ Endpoint |HTTP Method | CRUD Method | Result
 
 1. Add a custom place (CREATE): in "GoogleMaps" tab, you can create a new spot doing click in a position of the map and then doing click in "Add a Place" buttom, fill up the form and save your spot. Also, you can create a several list of tags for you place.
 
-![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/frontend/static/media/app_image1.jpeg "App Image")
+![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/static/media/app_image1.jpeg "App Image")
 
 2. See spots details (READ): in "My Spot List" tab, you can see all the details of your spot list. 
 
@@ -125,7 +122,7 @@ Endpoint |HTTP Method | CRUD Method | Result
 4. Remove a place (DELETE): in "My Spot List" tab, you can delete an spot in the garbage icon. This action will delete the tags related with the spot if those tags doesn't exists for any other spot.
 
 - Nearby places: in "GoogleMaps" tab, you can display nearby places from your current position within 'max_distance'. The map will show your nearby places with the icon below:
-![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/frontend/static/media/place_icon.png "Custom Spot")
+![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/static/media/place_icon.png "Custom Spot")
 
 ## Querying geometry data in PgAdmin4
 
@@ -136,11 +133,11 @@ Spots table contains two geometry columns in WGS 84 format (SRID 4326):
 
 That means that you can querying and watch our geometry data in PgAdmin4 as follow:
 
-![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/frontend/static/media/pgadmin_image1.jpeg "pgAdmin4 geometry Query")
+![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/static/media/pgadmin_image1.jpeg "pgAdmin4 geometry Query")
 
 Now you can see an Eye Icon that means you can watch our data in the pgadmin map:
 
-![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/frontend/static/media/pgadmin_image2.jpeg "pgAdmin4 map")
+![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/static/media/pgadmin_image2.jpeg "pgAdmin4 map")
 
 That's great! also you can watch it in differents layers (street, topography...) 
 

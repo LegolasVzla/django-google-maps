@@ -9,6 +9,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
             subprocess.call("python manage.py loaddata fixtures/"+'types_user_action.json',shell=True)
+            subprocess.call("python manage.py loaddata fixtures/"+'users.json',shell=True)
 
             self.stdout.write(self.style.SUCCESS('Successfully load fixtures'))
 
