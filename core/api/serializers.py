@@ -54,6 +54,10 @@ class SpotsAPISerializer(serializers.ModelSerializer):
         model = Spots
         fields = ('user',)
 
+class PlaceInformationAPISerializer(serializers.Serializer):
+    latitude = serializers.DecimalField(max_digits=22, decimal_places=16, required=True)
+    longitude = serializers.DecimalField(max_digits=22, decimal_places=16, required=True)    
+
 class ImagesSerializer(DynamicFieldsModelSerializer,serializers.ModelSerializer):
 	class Meta:
 		model = Images

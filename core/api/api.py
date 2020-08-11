@@ -5,7 +5,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from .serializers import (UserSerializer,SpotsSerializer,ImagesSerializer,
 	TagsSerializer,TypesUserActionSerializer,UserActionsSerializer,
-	SpotTagsSerializer,SpotsAPISerializer)
+	SpotTagsSerializer,SpotsAPISerializer,PlaceInformationAPISerializer)
 from django.contrib.auth import get_user_model
 
 from rest_framework.response import Response
@@ -14,6 +14,9 @@ from rest_framework.decorators import action
 from functools import wraps
 import logging
 import json
+
+from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderTimedOut
 
 User = get_user_model()
 
@@ -61,6 +64,8 @@ class SpotsViewSet(viewsets.ModelViewSet):
 	def get_serializer_class(self):
 		if self.action in ['user_places']:
 			return SpotsAPISerializer
+		if self.action in ['place_information']:
+			return PlaceInformationAPISerializer
 		return SpotsSerializer
 
 	@validate_type_of_request
@@ -89,6 +94,66 @@ class SpotsViewSet(viewsets.ModelViewSet):
 				self.data['spots']=json.loads(json.dumps(serializer.data))
 				self.response_data['data'].append(self.data)
 				self.code = status.HTTP_200_OK
+
+			else:
+				return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+		except Exception as e:
+			logging.getLogger('error_logger').exception("[API - SpotsViewSet] - Error: " + str(e))
+			self.code = status.HTTP_500_INTERNAL_SERVER_ERROR
+			self.response_data['error'].append("[API - SpotsViewSet] - Error: " + str(e))
+		return Response(self.response_data,status=self.code)
+
+	@validate_type_of_request
+	@action(methods=['post'], detail=False)
+	def place_information(self, request, *args, **kwargs):
+		'''
+		- POST method (post): get information about a place from
+		latitude and longitude using geopy
+		- Mandatory: latitude, longitude
+		'''
+		try:
+			serializer = PlaceInformationAPISerializer(data=kwargs['data'])
+
+			if serializer.is_valid():
+
+				self.data['place_information'] = {}
+				try:
+
+					geolocator = Nominatim(user_agent="My_django_google_maps_app",timeout=3)
+					location = geolocator.reverse(kwargs['data']['latitude']+", "+kwargs['data']['longitude'])
+
+					if(location):
+						try:
+							self.data['place_information']['country_name']=location.raw['address']['country']
+							self.data['place_information']['country_code']=location.raw['address']['country_code'].upper()
+						except Exception as e:
+							self.data['place_information']["country_name"]="undefined"
+							self.data['place_information']["country_code"]="undefined"
+						try:
+							self.data['place_information']['state_name']=location.raw['address']['state']
+						except Exception as e:
+							self.data['place_information']["state_name"]="undefined"
+						try:
+							self.data['place_information']['city_name']=location.raw['address']['city']
+						except Exception as e:
+							self.data['place_information']["city_name"]="undefined"
+						try:
+							self.data['place_information']['postal_code']=location.raw['address']['postcode']
+						except Exception as e:
+							self.data['place_information']["postal_code"]="undefined"
+						try:
+							self.data['place_information']['full_address']=location.raw['display_name']
+						except Exception as e:
+							self.data['full_address']="undefined"
+						self.code = status.HTTP_200_OK
+
+				except (GeocoderTimedOut) as e:
+					for i,j in data.items():
+						self.data['place_information'][i] = "undefined. Not found information"
+					self.code = status.HTTP_204_NO_CONTENT
+
+				self.response_data['data'].append(self.data)
 
 			else:
 				return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
