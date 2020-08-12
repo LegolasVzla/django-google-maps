@@ -13,9 +13,6 @@ from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.measure import Distance
 from decimal import Decimal
 
-from geopy.geocoders import Nominatim
-from geopy.exc import GeocoderTimedOut
-
 import boto3
 from botocore.exceptions import NoCredentialsError
 
@@ -23,24 +20,22 @@ import json
 import requests
 import logging
 
-
 from django.views.generic import View
 from api.api import (SpotsViewSet)
 
-# Create your views here.
 class IndexView(View):
 
     def __init__(self,*args, **kwargs):
-        self.response_data = {'error': [], 'data': {}}
-        self.code = 200
+        self.response_data = {'error': [], 'data': {}, 'code': status.HTTP_200_OK}
 
     def get(self, request, *args, **kwargs):
-        _spots = SpotsViewSet()
-        _spots.user_places(request,user='1')
         try:
+            _spots = SpotsViewSet()
+            _spots.user_places(request,user='1')
+
             if _spots.code == 200:
 
-                response = _spots.response_data['data'][0]['spots']
+                self.response_data['data']['spots'] = _spots.response_data['data'][0]['spots']
                 self.response_data['data']['api_key'] = API_KEY
 
                 if FONT_AWESOME_KEY:
@@ -51,16 +46,44 @@ class IndexView(View):
                 self.response_data['data']['defaultLat'] = defaultLat 
                 self.response_data['data']['defaultLng'] = defaultLng
 
-                self.response_data['data']['spots'] = response
-
             else:
                 self.response_data = self.response_data['data']
+                self.response_data['code'] = _spots.code
 
         except Exception as e:
             content['data'] = {'name':'Not found information'}
-        return render(request,template_name='frontend/index.html',status=self.code,context=self.response_data)
+        return render(request,template_name='frontend/index.html',context=self.response_data)
 
-class SpotView(APIView):
+class SpotView(View):
+
+    def __init__(self,*args, **kwargs):
+        self.response_data = {'error': [], 'data': {}, 'code': status.HTTP_200_OK}
+
+    # def get(self, request, *args, **kwargs):
+    #     _spots = SpotsViewSet()
+    #     _spots.user_places(request,user='1')
+    #     try:
+    #         if _spots.code == 200:
+
+    #             response = _spots.response_data['data'][0]['spots']
+    #             self.response_data['data']['api_key'] = API_KEY
+
+    #             if FONT_AWESOME_KEY:
+    #                 self.response_data['data']['fontawesome_key'] = FONT_AWESOME_KEY
+    #             else:
+    #                 self.response_data['data']['fontawesome_key'] = ''
+
+    #             self.response_data['data']['defaultLat'] = defaultLat 
+    #             self.response_data['data']['defaultLng'] = defaultLng
+
+    #             self.response_data['data']['spots'] = response
+
+    #         else:
+    #             self.response_data = self.response_data['data']
+
+    #     except Exception as e:
+    #         content['data'] = {'name':'Not found information'}
+    #     return render(request,template_name='frontend/index.html',status=self.code,context=self.response_data)
 
     def get(self, request, *args, **kwargs):
         data = {}
@@ -68,124 +91,107 @@ class SpotView(APIView):
         if request.method == 'GET':
 
             # Request to get information about the place clicked
-            if request.GET['action']=="get_spot_modal":
-                data['code'] = status.HTTP_200_OK
-                data['lat'] = request.GET['lat']
-                data['lng'] = request.GET['lng']
-                try:
-                    geolocator = Nominatim(user_agent="My_django_google_maps_app",timeout=3)
-                    location = geolocator.reverse(request.GET['lat']+", "+request.GET['lng'])
-                    if(location):
-                        try:
-                            data['country_name']=location.raw['address']['country']
-                            data['country_code']=location.raw['address']['country_code'].upper()
-                        except Exception as e:
-                            data["country_name"]="undefined"
-                            data["country_code"]="undefined"
-                        try:
-                            data['state_name']=location.raw['address']['state']
-                        except Exception as e:
-                            data["state_name"]="undefined"
-                        try:
-                            data['city_name']=location.raw['address']['city']
-                        except Exception as e:
-                            data["city_name"]="undefined"
-                        try:
-                            data['postal_code']=location.raw['address']['postcode']
-                        except Exception as e:
-                            data["postal_code"]="undefined"
-                        try:
-                            data['full_address']=location.raw['display_name']
-                        except Exception as e:
-                            data['full_address']="undefined"
-                except (GeocoderTimedOut) as e:
-                    for i,j in data.items():
-                        data[i] = "undefined"
-
-            # Request to display nearby places
-            elif request.GET['action']== "get_nearby_places":
-                current_latitude = Decimal(request.GET['lat'])
-                current_longitude = Decimal(request.GET['lng'])
+            if request.GET['action'] == "get_spot_modal":
 
                 try:
-                    # Transform current latitude and longitude of the user, in a geometry point
-                    point_of_user = GEOSGeometry("POINT({} {})".format(current_longitude, current_latitude))
+                    _place_information = SpotsViewSet()
+                    _place_information.place_information(request,latitude=request.GET['lat'],longitude=request.GET['lng'])
+
+                    if _place_information.code == 200:
+
+                        self.response_data['data']['place_information'] = _place_information.response_data['data'][0]['place_information']
+
+                    else:
+                        self.response_data = self.response_data['data']
+                        self.response_data['code'] = _place_information.code
+
+                except Exception as e:
+                    logging.getLogger('error_logger').error("Error in get_spot_modal getting data from place_information: " + str(e))
+
+            # # Request to display nearby places
+            # elif request.GET['action']== "get_nearby_places":
+            #     current_latitude = Decimal(request.GET['lat'])
+            #     current_longitude = Decimal(request.GET['lng'])
+
+            #     try:
+            #         # Transform current latitude and longitude of the user, in a geometry point
+            #         point_of_user = GEOSGeometry("POINT({} {})".format(current_longitude, current_latitude))
                     
-                    if(Spots.objects.filter(position__distance_lte=(point_of_user,Distance(km=max_distance)),is_active=True,is_deleted=False).exists()):
+            #         if(Spots.objects.filter(position__distance_lte=(point_of_user,Distance(km=max_distance)),is_active=True,is_deleted=False).exists()):
 
-                        # Get all the nearby places within a 5 km that match wit Spots of the current user
-                        spots_in_range = Spots.objects.filter(position__distance_lte=(point_of_user,Distance(km=max_distance)),is_active=True,is_deleted=False).values('lat','lng').order_by('id')
+            #             # Get all the nearby places within a 5 km that match wit Spots of the current user
+            #             spots_in_range = Spots.objects.filter(position__distance_lte=(point_of_user,Distance(km=max_distance)),is_active=True,is_deleted=False).values('lat','lng').order_by('id')
 
-                        data['code'] = status.HTTP_200_OK
+            #             data['code'] = status.HTTP_200_OK
 
-                        nearby_list = []
-                        for i in spots_in_range:
-                            nearby_list.append(i)
-                        data['nearby'] = nearby_list
+            #             nearby_list = []
+            #             for i in spots_in_range:
+            #                 nearby_list.append(i)
+            #             data['nearby'] = nearby_list
 
-                    else:
-                        data['code'] = status.HTTP_204_NO_CONTENT
+            #         else:
+            #             data['code'] = status.HTTP_204_NO_CONTENT
 
-                except Exception as e:
-                    logging.getLogger('error_logger').error("Error in nearby: " + str(e))
+            #     except Exception as e:
+            #         logging.getLogger('error_logger').error("Error in nearby: " + str(e))
 
-            # Request to get information about an specific place to attempt edition
-            elif request.GET['action'] == "edit_spot_modal":
+            # # Request to get information about an specific place to attempt edition
+            # elif request.GET['action'] == "edit_spot_modal":
 
-                try:
-                    response = requests.get("http://localhost:8000/api/spots/"+str(request.GET['spot_id']))
-                    response = response.content.decode('utf-8')
-                    json_response = json.loads(response)
-                    data['id'] = json_response['id']
-                    data['spotName'] = json_response['name']
-                    data['country_name'] = json_response['country']
-                    data['country_code'] = json_response['country_code']
-                    data['state_name'] = json_response['state']
-                    data['city_name'] = json_response['city']
-                    data['postal_code'] = json_response['postal_code']
-                    data['full_address'] = json_response['full_address']
-                    data['lat'] = json_response['lat']
-                    data['lng'] = json_response['lng']
+            #     try:
+            #         response = requests.get("http://localhost:8000/api/spots/"+str(request.GET['spot_id']))
+            #         response = response.content.decode('utf-8')
+            #         json_response = json.loads(response)
+            #         data['id'] = json_response['id']
+            #         data['spotName'] = json_response['name']
+            #         data['country_name'] = json_response['country']
+            #         data['country_code'] = json_response['country_code']
+            #         data['state_name'] = json_response['state']
+            #         data['city_name'] = json_response['city']
+            #         data['postal_code'] = json_response['postal_code']
+            #         data['full_address'] = json_response['full_address']
+            #         data['lat'] = json_response['lat']
+            #         data['lng'] = json_response['lng']
 
-                    '''If an user action list exist for the current spot with 
-                    type_user_action equal to 'Spot Tag', get it'''
-                    if(UserActions.objects.filter(
-                        spot_id=request.GET['spot_id'],
-                        type_user_action_id=1
-                    ).exists()):
+            #         '''If an user action list exist for the current spot with 
+            #         type_user_action equal to 'Spot Tag', get it'''
+            #         if(UserActions.objects.filter(
+            #             spot_id=request.GET['spot_id'],
+            #             type_user_action_id=1
+            #         ).exists()):
 
-                        # Get the user action id related with the spot
-                        user_action_id = UserActions.objects.get(
-                            spot_id=request.GET['spot_id'],
-                            type_user_action_id=1,
-                            is_active=True,
-                            is_deleted=False)
+            #             # Get the user action id related with the spot
+            #             user_action_id = UserActions.objects.get(
+            #                 spot_id=request.GET['spot_id'],
+            #                 type_user_action_id=1,
+            #                 is_active=True,
+            #                 is_deleted=False)
 
-                        # Get the tag list related with the user action
-                        spot_tag_list = SpotTags.objects.filter(
-                            user_action_id=user_action_id.id,
-                            is_active=True,
-                            is_deleted=False)
+            #             # Get the tag list related with the user action
+            #             spot_tag_list = SpotTags.objects.filter(
+            #                 user_action_id=user_action_id.id,
+            #                 is_active=True,
+            #                 is_deleted=False)
 
-                        # Get all the tag names related with the tag list
-                        tagList = []
-                        for current_tag in spot_tag_list:
-                            tag = Tags.objects.get(id=current_tag.tag_id)
-                            tagList.append(tag.name)
-                        data['tagList'] = tagList
+            #             # Get all the tag names related with the tag list
+            #             tagList = []
+            #             for current_tag in spot_tag_list:
+            #                 tag = Tags.objects.get(id=current_tag.tag_id)
+            #                 tagList.append(tag.name)
+            #             data['tagList'] = tagList
 
-                    else:
-                        data['tagList'] = []
+            #         else:
+            #             data['tagList'] = []
 
-                    data['code'] = status.HTTP_200_OK
+            #         data['code'] = status.HTTP_200_OK
 
-                except Exception as e:
-                    logging.getLogger('error_logger').error("Error in Edit Spot Modal: " + str(e))
+            #     except Exception as e:
+            #         logging.getLogger('error_logger').error("Error in Edit Spot Modal: " + str(e))
 
         else:
-            data['code'] = status.HTTP_400_BAD_REQUEST
+            self.response_data['code'] = status.HTTP_400_BAD_REQUEST
 
-        return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder), content_type='application/json')
+        return HttpResponse(json.dumps(self.response_data, cls=DjangoJSONEncoder), content_type='application/json')
 
     def post(self, request, *args, **kwargs):
         data = {}
@@ -457,7 +463,6 @@ class SpotView(APIView):
             data['code'] = status.HTTP_400_BAD_REQUEST
 
         return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder), content_type='application/json')
-
 
     def delete(self, request, *args, **kwargs):
         data = {}

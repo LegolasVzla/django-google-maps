@@ -116,21 +116,21 @@ function spotGetModal(defaultLat,defaultLng) {
 
 		  	// reverse_geocoding(latlng);
 
-		    $("#country").val(data.country_name)
-		    $("#countryCode").val(data.country_code)
-		    $("#stateName").val(data.state_name)
-		    $("#city").val(data.city_name)
-		    $("#postalCode").val(data.postal_code)
-		    $("#fullAddress").text(data.full_address)
+		    $("#country").val(data.data.place_information.country_name)
+		    $("#countryCode").val(data.data.place_information.country_code)
+		    $("#stateName").val(data.data.place_information.state_name)
+		    $("#city").val(data.data.place_information.city_name)
+		    $("#postalCode").val(data.data.place_information.postal_code)
+		    $("#fullAddress").text(data.data.place_information.full_address)
 		    $("#latitude").val(latitude)
 		    $("#length").val(length)
 
-			spotData["country"]=data.country_name;
-			spotData["countryCode"]=data.country_code;
-			spotData["state_name"]=data.state_name;
-			spotData["city"]=data.city_name;
-			spotData["postalCode"]=data.postal_code;
-			spotData["fullAddress"]=data.full_address;
+			spotData["country"]=data.data.place_information.country_name;
+			spotData["countryCode"]=data.data.place_information.country_code;
+			spotData["state_name"]=data.data.place_information.state_name;
+			spotData["city"]=data.data.place_information.city_name;
+			spotData["postalCode"]=data.data.place_information.postal_code;
+			spotData["fullAddress"]=data.data.place_information.full_address;
 			spotData["latitude"]=latitude;
 			spotData["length"]=length;
 			//-------------------------------------

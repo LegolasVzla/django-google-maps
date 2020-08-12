@@ -151,7 +151,10 @@ class SpotsViewSet(viewsets.ModelViewSet):
 				except (GeocoderTimedOut) as e:
 					for i,j in data.items():
 						self.data['place_information'][i] = "undefined. Not found information"
-					self.code = status.HTTP_204_NO_CONTENT
+					# This also could be 204 to display some different
+					# message in front end layer
+					self.code = status.HTTP_200_OK
+					#self.code = status.HTTP_204_NO_CONTENT
 
 				self.response_data['data'].append(self.data)
 
