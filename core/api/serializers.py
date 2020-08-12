@@ -56,7 +56,13 @@ class SpotsAPISerializer(serializers.ModelSerializer):
 
 class PlaceInformationAPISerializer(serializers.Serializer):
     latitude = serializers.DecimalField(max_digits=22, decimal_places=16, required=True)
-    longitude = serializers.DecimalField(max_digits=22, decimal_places=16, required=True)    
+    longitude = serializers.DecimalField(max_digits=22, decimal_places=16, required=True)
+
+class NearbyPlacesAPISerializer(serializers.Serializer):
+    latitude = serializers.DecimalField(max_digits=22, decimal_places=16, required=True)
+    longitude = serializers.DecimalField(max_digits=22, decimal_places=16, required=True)
+    max_distance = serializers.IntegerField(required=True)
+    user = serializers.IntegerField(source='id',required=True)
 
 class ImagesSerializer(DynamicFieldsModelSerializer,serializers.ModelSerializer):
 	class Meta:

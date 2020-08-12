@@ -5,7 +5,9 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from .serializers import (UserSerializer,SpotsSerializer,ImagesSerializer,
 	TagsSerializer,TypesUserActionSerializer,UserActionsSerializer,
-	SpotTagsSerializer,SpotsAPISerializer,PlaceInformationAPISerializer)
+	SpotTagsSerializer,SpotsAPISerializer,PlaceInformationAPISerializer,
+	NearbyPlacesAPISerializer)
+from core.settings import (max_distance)
 from django.contrib.auth import get_user_model
 
 from rest_framework.response import Response
@@ -14,6 +16,10 @@ from rest_framework.decorators import action
 from functools import wraps
 import logging
 import json
+
+from django.contrib.gis.geos import GEOSGeometry
+from django.contrib.gis.measure import Distance
+from decimal import Decimal
 
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut
@@ -66,6 +72,8 @@ class SpotsViewSet(viewsets.ModelViewSet):
 			return SpotsAPISerializer
 		if self.action in ['place_information']:
 			return PlaceInformationAPISerializer
+		if self.action in ['nearby_places']:
+			return NearbyPlacesAPISerializer			
 		return SpotsSerializer
 
 	@validate_type_of_request
@@ -155,6 +163,55 @@ class SpotsViewSet(viewsets.ModelViewSet):
 					# message in front end layer
 					self.code = status.HTTP_200_OK
 					#self.code = status.HTTP_204_NO_CONTENT
+
+				self.response_data['data'].append(self.data)
+
+			else:
+				return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+		except Exception as e:
+			logging.getLogger('error_logger').exception("[API - SpotsViewSet] - Error: " + str(e))
+			self.code = status.HTTP_500_INTERNAL_SERVER_ERROR
+			self.response_data['error'].append("[API - SpotsViewSet] - Error: " + str(e))
+		return Response(self.response_data,status=self.code)
+
+	@validate_type_of_request
+	@action(methods=['post'], detail=False)
+	def nearby_places(self, request, *args, **kwargs):
+		'''
+		- POST method (post): get the nearby places of
+		the requested user
+		- Mandatory: latitude, longitude, max distance, user_id
+		'''
+		try:
+			serializer = NearbyPlacesAPISerializer(data=kwargs['data'])
+
+			if serializer.is_valid():
+
+				self.data['nearby'] = []
+
+                # Transform current latitude and longitude of the user, in a geometry point
+				point_of_user = GEOSGeometry("POINT({} {})".format(kwargs['data']['longitude'],kwargs['data']['latitude']))
+                
+				if(Spots.objects.filter(
+					position__distance_lte=(point_of_user,Distance(km=max_distance)),
+					is_active=True,
+					is_deleted=False,
+					user=kwargs['data']['user']
+				).exists()):
+
+					# Get all the nearby places within a 5 km that match wit Spots of the current user
+					queryset = Spots.objects.filter(
+						position__distance_lte=(point_of_user,Distance(km=max_distance)),
+						is_active=True,
+						is_deleted=False
+					).values('lat','lng').order_by('id')
+
+					for i in queryset:
+						self.data['nearby'].append(i)
+
+				else:
+					self.code = status.HTTP_204_NO_CONTENT
 
 				self.response_data['data'].append(self.data)
 

@@ -15,7 +15,7 @@ router.register('api/spot_tags', SpotTagsViewSet, 'spot_tags')
 
 urlpatterns = [
     url(r'^api/spots/user_places/user/<int:user>', SpotsViewSet.as_view({'post': 'user_places'}), name='user_places'),
-    url(r'^api/spots/place_information/latitude/<int:latitude>/longitude/<int:longitude>', SpotsViewSet.as_view({'post': 'place_information'}), name='place_information')
+    url(r'^api/spots/nearby_places/latitude/<int:latitude>/longitude/<int:longitude>/user/<int:user>/max_distance/<int:max_distance>', SpotsViewSet.as_view({'post': 'nearby_places'}), name='nearby_places')
 ]
 
 urlpatterns += router.urls
