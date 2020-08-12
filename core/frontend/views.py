@@ -9,10 +9,8 @@ from core.settings import (API_KEY,FONT_AWESOME_KEY,defaultLat,defaultLng,
 from rest_framework import status
 from api.models import (User,Spots,Images,Tags,TypesUserAction,
     UserActions,SpotTags)
-from django.contrib.gis.geos import GEOSGeometry
-from django.contrib.gis.measure import Distance
-from decimal import Decimal
 
+from decimal import Decimal
 import boto3
 from botocore.exceptions import NoCredentialsError
 
@@ -59,32 +57,6 @@ class SpotView(View):
     def __init__(self,*args, **kwargs):
         self.response_data = {'error': [], 'data': {}, 'code': status.HTTP_200_OK}
 
-    # def get(self, request, *args, **kwargs):
-    #     _spots = SpotsViewSet()
-    #     _spots.user_places(request,user='1')
-    #     try:
-    #         if _spots.code == 200:
-
-    #             response = _spots.response_data['data'][0]['spots']
-    #             self.response_data['data']['api_key'] = API_KEY
-
-    #             if FONT_AWESOME_KEY:
-    #                 self.response_data['data']['fontawesome_key'] = FONT_AWESOME_KEY
-    #             else:
-    #                 self.response_data['data']['fontawesome_key'] = ''
-
-    #             self.response_data['data']['defaultLat'] = defaultLat 
-    #             self.response_data['data']['defaultLng'] = defaultLng
-
-    #             self.response_data['data']['spots'] = response
-
-    #         else:
-    #             self.response_data = self.response_data['data']
-
-    #     except Exception as e:
-    #         content['data'] = {'name':'Not found information'}
-    #     return render(request,template_name='frontend/index.html',status=self.code,context=self.response_data)
-
     def get(self, request, *args, **kwargs):
         data = {}
 
@@ -95,7 +67,9 @@ class SpotView(View):
 
                 try:
                     _place_information = SpotsViewSet()
-                    _place_information.place_information(request,latitude=request.GET['lat'],longitude=request.GET['lng'])
+                    _place_information.place_information(request,
+                        latitude=request.GET['lat'],
+                        longitude=request.GET['lng'])
 
                     if _place_information.code == 200:
 
@@ -106,34 +80,27 @@ class SpotView(View):
                         self.response_data['code'] = _place_information.code
 
                 except Exception as e:
-                    logging.getLogger('error_logger').error("Error in get_spot_modal getting data from place_information: " + str(e))
+                    logging.getLogger('error_logger').error("Error in get_spot_moda: " + str(e))
 
-            # # Request to display nearby places
-            # elif request.GET['action']== "get_nearby_places":
-            #     current_latitude = Decimal(request.GET['lat'])
-            #     current_longitude = Decimal(request.GET['lng'])
+            # Request to display nearby places
+            elif request.GET['action']== "get_nearby_places":
+                current_latitude = Decimal(request.GET['lat'])
+                current_longitude = Decimal(request.GET['lng'])
 
-            #     try:
-            #         # Transform current latitude and longitude of the user, in a geometry point
-            #         point_of_user = GEOSGeometry("POINT({} {})".format(current_longitude, current_latitude))
-                    
-            #         if(Spots.objects.filter(position__distance_lte=(point_of_user,Distance(km=max_distance)),is_active=True,is_deleted=False).exists()):
+                try:
+                    _nearby_places = SpotsViewSet()
+                    _nearby_places.nearby_places(request,latitude=current_latitude,longitude=current_longitude,max_distance=max_distance,user='1')
 
-            #             # Get all the nearby places within a 5 km that match wit Spots of the current user
-            #             spots_in_range = Spots.objects.filter(position__distance_lte=(point_of_user,Distance(km=max_distance)),is_active=True,is_deleted=False).values('lat','lng').order_by('id')
+                    if _nearby_places.code == 200:
 
-            #             data['code'] = status.HTTP_200_OK
+                        self.response_data['data']['nearby'] = _nearby_places.response_data['data'][0]['nearby']
 
-            #             nearby_list = []
-            #             for i in spots_in_range:
-            #                 nearby_list.append(i)
-            #             data['nearby'] = nearby_list
+                    else:
+                        self.response_data = self.response_data['data']
+                        self.response_data['code'] = _nearby_places.code
 
-            #         else:
-            #             data['code'] = status.HTTP_204_NO_CONTENT
-
-            #     except Exception as e:
-            #         logging.getLogger('error_logger').error("Error in nearby: " + str(e))
+                except Exception as e:
+                    logging.getLogger('error_logger').error("Error in get_nearby_places: " + str(e))
 
             # # Request to get information about an specific place to attempt edition
             # elif request.GET['action'] == "edit_spot_modal":

@@ -200,39 +200,42 @@ function spotNearBy(latitude,longitude) {
 	      action: "get_nearby_places",	    	
 	      lat: latitude_aux,
 	      lng: length_aux
-	 },success: function showAnswer(data) {
-	  if (data.code==200) {
+		 },success: function showAnswer(data) {
+			if (data.code==200) {
 
-		var shape = {
-		    coord: [1, 1, 1, 20, 18, 20, 18 , 1],
-		    type: 'poly'
-		};
+				var shape = {
+				    coord: [1, 1, 1, 20, 18, 20, 18 , 1],
+				    type: 'poly'
+				};
 
-		var clickedSyCustomSpotsArray = []
+				var clickedSyCustomSpotsArray = []
 
-		var mySpotList = data.nearby
-		var location;
-		var customUserSpot;
+				var mySpotList = data.data.nearby
+				var location;
+				var customUserSpot;
 
-		for (var i=0; i<mySpotList.length; ++i) {
+				for (var i=0; i<mySpotList.length; ++i) {
 
-			location = new google.maps.LatLng(mySpotList[i].lat,mySpotList[i].lng);
+					location = new google.maps.LatLng(mySpotList[i].lat,mySpotList[i].lng);
 
-			customUserSpot = new google.maps.Marker({
-			    icon: '/static/media/place_icon.png',
-			    shape: shape,
-			    position: location,
-			    map: map
-			});
+					customUserSpot = new google.maps.Marker({
+					    icon: '/static/media/place_icon.png',
+					    shape: shape,
+					    position: location,
+					    map: map
+					});
 
-			clickedSyCustomSpotsArray.push(customUserSpot);
+					clickedSyCustomSpotsArray.push(customUserSpot);
+				}
+
+			}else if(data.code==204){
+				alertify.error('Not found own nearby places');
+			}else{
+				console.log('Error to load modal');
+				alertify.error('An error happened loading nearby places, please try again.');
+			}
 		}
-
-	  }else{
-        alertify.error('Not found own nearby places');
-	  }
-	}
-	})	
+	})
 }
 
 // Function to get the spot Id requested by the user and return the spot information
