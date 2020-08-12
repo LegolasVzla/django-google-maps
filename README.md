@@ -14,16 +14,6 @@ Basic example of how to use Google Maps with Django and PostGIS
 
 ## Requirements
 - Ubuntu 18
-- Install PostgreSQL:
-```
-  sudo apt-get update
-  sudo apt install python3-dev postgresql postgresql-contrib python3-psycopg2 libpq-dev -y
-```
-- Install PostGIS
-```
-  sudo apt-get install -y postgis postgresql-10-postgis-2.4 python-psycopg2
-  sudo -u postgres psql -c "CREATE EXTENSION postgis;"
-```
 
 ## Installation
 
@@ -63,7 +53,7 @@ This will install PostgreSQL, PostGIS and pip on your system. After that, you ne
 
 - postgresdbConf section: fill in with your own PostgreSQL credentials. By default, DB_HOST and DB_PORT in PostgreSQL are localhost/5432. 
 
-- GEOSGeometryConf section: a 'max_distance' suggested could be from 1-5 kilometers, to display nearby places. 
+- GEOSGeometryConf section: a ```max_distance``` suggested could be from 1-5 kilometers, to display nearby places. 
 
 - googleMapsConf section: google maps API KEY needed to load the map, also a default lat and longitude to focus your map
 
@@ -87,7 +77,7 @@ You could see the home page in:
 
 	http://127.0.0.1:8000/index/
 
-The map will be setting in the 'defaultLat' and 'defaultLng' position.
+The map will be setting in the ```defaultLat``` and ```defaultLng``` position.
 
 ## Models
 
