@@ -39,6 +39,7 @@ max_distance = config.get('GEOSGeometryConf', 'max_distance')
 S3_ACCESS_KEY = config.get('amazonS3Conf', 'S3_ACCESS_KEY')
 S3_SECRET_KEY = config.get('amazonS3Conf', 'S3_SECRET_KEY')
 s3_bucket_name = config.get('amazonS3Conf', 's3_bucket_name')
+s3_env_folder_name = config.get('amazonS3Conf', 's3_env_folder_name')
 
 # Fond awesome Config
 try:

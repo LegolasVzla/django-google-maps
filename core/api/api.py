@@ -6,8 +6,9 @@ from rest_framework.permissions import IsAuthenticated
 from .serializers import (UserSerializer,SpotsSerializer,ImagesSerializer,
 	TagsSerializer,TypesUserActionSerializer,UserActionsSerializer,
 	SpotTagsSerializer,SpotsAPISerializer,PlaceInformationAPISerializer,
-	NearbyPlacesAPISerializer)
-from core.settings import (max_distance)
+	NearbyPlacesAPISerializer,CreateSpotAPISerializer)
+from core.settings import (max_distance,S3_ACCESS_KEY,S3_SECRET_KEY,
+	s3_bucket_name,s3_env_folder_name)
 from django.contrib.auth import get_user_model
 
 from rest_framework.response import Response
@@ -68,12 +69,14 @@ class SpotsViewSet(viewsets.ModelViewSet):
 		self.code = status.HTTP_200_OK
 
 	def get_serializer_class(self):
+		if self.action in ['create_spot']:
+			return CreateSpotAPISerializer
 		if self.action in ['user_places']:
 			return SpotsAPISerializer
 		if self.action in ['place_information']:
 			return PlaceInformationAPISerializer
 		if self.action in ['nearby_places']:
-			return NearbyPlacesAPISerializer			
+			return NearbyPlacesAPISerializer
 		return SpotsSerializer
 
 	@validate_type_of_request
@@ -214,6 +217,89 @@ class SpotsViewSet(viewsets.ModelViewSet):
 					self.code = status.HTTP_204_NO_CONTENT
 
 				self.response_data['data'].append(self.data)
+
+			else:
+				return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+		except Exception as e:
+			logging.getLogger('error_logger').exception("[API - SpotsViewSet] - Error: " + str(e))
+			self.code = status.HTTP_500_INTERNAL_SERVER_ERROR
+			self.response_data['error'].append("[API - SpotsViewSet] - Error: " + str(e))
+		return Response(self.response_data,status=self.code)
+
+	@validate_type_of_request
+	@action(methods=['post'], detail=False)
+	def create_spot(self, request, *args, **kwargs):
+		'''
+		- POST method (post): create a new place
+		- Mandatory: 
+		- Optionals: tag list, image list
+		'''
+		try:
+			serializer = CreateSpotAPISerializer(data=kwargs['data'])
+
+			if serializer.is_valid():
+				serializer = SpotsSerializer(data=kwargs['data'])
+
+				if serializer.is_valid():
+					serializer.save()
+
+	                # if request.POST.get('image'):
+
+	                #     local_file = '<path_to_the_file>'
+	                #     filename = request.POST.get('placeName')
+	                #     user_id = 1
+	                #     key = '{}/{}/{}'.format(s3_env_folder_name,user_id,filename)
+
+	                #     s3 = boto3.client('s3', aws_access_key_id=S3_ACCESS_KEY,aws_secret_access_key=S3_SECRET_KEY)
+	                #     s3.upload_file(local_file, s3_bucket_name, key, ExtraArgs={'ACL':'public-read'})
+	                #     print("Upload Successful")
+	                #     bucket_location = s3.get_bucket_location(Bucket=s3_bucket_name)
+	                #     #file_url = '{}/{}/{}/{}'.format(s3.meta.endpoint_url, s3_bucket_name, s3_env_folder_name, filename)
+	                #     file_url = "https://s3-{0}.amazonaws.com/{1}/{2}/{3}/{4}".format(bucket_location['LocationConstraint'],s3_bucket_name,s3_env_folder_name,user_id,filename)
+
+					if kwargs['data']['tag_list']:
+
+						# Generate a new user action with Type USer Action case: Spot Tag
+						user_action = UserActions(
+							type_user_action_id=1,
+							spot_id=serializer.data['id']
+						)
+						user_action.save()
+						user_action_id = UserActions.objects.latest('id').id
+
+						# Iterate over the tag list
+						for current_tag_name in kwargs['data']['tag_list']:
+
+							# Check if the current tag already exist
+							if(Tags.objects.filter(
+								name=current_tag_name,
+								is_active=True,
+								is_deleted=False).exists()):
+	                            
+								# Get the tag_id
+								current_tag = Tags.objects.get(
+									name=current_tag_name,
+									is_active=True,
+									is_deleted=False
+								)
+							else:
+								# Generate the new tag
+								current_tag = Tags(name=current_tag_name)
+								current_tag.save()
+
+							# Generate a new spot tag
+							spot_tag = SpotTags(
+								user_action_id=user_action_id,
+								tag_id=current_tag.id
+							)
+							spot_tag.save()
+
+				else:
+					return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+				self.response_data['data'].append(serializer.data)
+				self.code = status.HTTP_200_OK
 
 			else:
 				return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
