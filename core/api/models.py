@@ -24,10 +24,10 @@ class Spots(models.Model):
 	city = models.CharField( max_length = 100)
 	full_address = models.CharField( max_length = 250)
 	postal_code = models.CharField( max_length = 20)
-	lat = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
-	lng = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
-	geom = models.GeometryField(srid=4326,blank=True,null=True)
-	position = models.PointField(null=True, blank=True)	
+	lat = models.DecimalField(max_digits=22, decimal_places=16, blank=False, null=True)
+	lng = models.DecimalField(max_digits=22, decimal_places=16, blank=False, null=True)
+	geom = models.GeometryField(srid=4326,blank=False,null=True)
+	position = models.PointField(null=True, blank=False)	
 	user = models.ForeignKey(User,related_name='spots_user_id',on_delete=models.CASCADE)
 	is_active = models.BooleanField(default=True)
 	is_deleted = models.BooleanField(default=False)
@@ -45,14 +45,14 @@ class Images(models.Model):
 	created_date = models.DateTimeField(auto_now_add=True)
 
 class Tags(models.Model):
-	name = models.CharField( max_length = 100)
+	name = models.CharField( max_length = 100, blank=False, null=False)
 	is_active = models.BooleanField(default=True)
 	is_deleted = models.BooleanField(default=False)
 	updated_date=models.DateTimeField(auto_now=True)
 	created_date = models.DateTimeField(auto_now_add=True)
 
 class TypesUserAction(models.Model):
-	name = models.CharField( max_length = 100)
+	name = models.CharField( max_length = 100, blank=False, null=False)
 	is_active = models.BooleanField(default=True)
 	is_deleted = models.BooleanField(default=False)
 	updated_date=models.DateTimeField(auto_now=True)
