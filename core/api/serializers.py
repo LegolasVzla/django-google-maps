@@ -2,6 +2,7 @@ from .models import (User,Spots,Images,Tags,TypesUserAction,UserActions,
 	SpotTags)
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from django.contrib.gis.geos import GEOSGeometry
 User = get_user_model()
 
 class DynamicFieldsModelSerializer(serializers.ModelSerializer):
@@ -44,15 +45,31 @@ class UserSerializer(DynamicFieldsModelSerializer,serializers.ModelSerializer):
 		fields = ('__all__')
 
 class SpotsSerializer(DynamicFieldsModelSerializer,serializers.ModelSerializer):
-	class Meta:
-		model = Spots
-		fields = ('__all__')
+    class Meta:
+        model = Spots
+        fields = ('__all__')
+
+    def create(self, validated_data):
+        instance = Spots.objects.create(**validated_data)
+        instance.geom = GEOSGeometry("POINT({} {})".format(validated_data.get("lng"), validated_data.get("lat")))
+        instance.position = GEOSGeometry("POINT({} {})".format(validated_data.get("lng"), validated_data.get("lat")))
+        instance.save()
+        return instance
 
 class SpotsAPISerializer(serializers.ModelSerializer):
     user = serializers.IntegerField(source='id',required=True)
     class Meta:
         model = Spots
         fields = ('user',)
+
+class CreateSpotAPISerializer(serializers.ModelSerializer):
+    tag_list = serializers.ListField(
+        child=serializers.CharField(max_length=50),
+        help_text="Tag list that you can optional relate with the place",
+        allow_empty=True)
+    class Meta:
+        model = Spots
+        fields = ('__all__')
 
 class PlaceInformationAPISerializer(serializers.Serializer):
     latitude = serializers.DecimalField(max_digits=22, decimal_places=16, required=True)
@@ -61,7 +78,10 @@ class PlaceInformationAPISerializer(serializers.Serializer):
 class NearbyPlacesAPISerializer(serializers.Serializer):
     latitude = serializers.DecimalField(max_digits=22, decimal_places=16, required=True)
     longitude = serializers.DecimalField(max_digits=22, decimal_places=16, required=True)
-    max_distance = serializers.IntegerField(required=True)
+    max_distance = serializers.IntegerField(
+        required=True,
+        help_text="Distance in kilometers. A suggested value could be from 1-5 kilometers, to display nearby places"
+    )
     user = serializers.IntegerField(source='id',required=True)
 
 class ImagesSerializer(DynamicFieldsModelSerializer,serializers.ModelSerializer):
