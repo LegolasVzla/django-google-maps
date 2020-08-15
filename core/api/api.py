@@ -7,6 +7,9 @@ from .serializers import (UserSerializer,SpotsSerializer,ImagesSerializer,
 	TagsSerializer,TypesUserActionSerializer,UserActionsSerializer,
 	SpotTagsSerializer,SpotsAPISerializer,PlaceInformationAPISerializer,
 	NearbyPlacesAPISerializer,CreateSpotAPISerializer)
+from core.settings import (API_KEY,FONT_AWESOME_KEY,defaultLat,defaultLng,
+    max_distance,S3_ACCESS_KEY,S3_SECRET_KEY,s3_bucket_name,s3_env_folder_name)
+
 from core.settings import (max_distance,S3_ACCESS_KEY,S3_SECRET_KEY,
 	s3_bucket_name,s3_env_folder_name)
 from django.contrib.auth import get_user_model
@@ -308,6 +311,13 @@ class SpotsViewSet(viewsets.ModelViewSet):
 			logging.getLogger('error_logger').exception("[API - SpotsViewSet] - Error: " + str(e))
 			self.code = status.HTTP_500_INTERNAL_SERVER_ERROR
 			self.response_data['error'].append("[API - SpotsViewSet] - Error: " + str(e))
+		except FileNotFoundError:
+			logging.getLogger('error_logger').error("Error Saving the image, the file was not found: " + str(e))
+			data['code'] = status.HTTP_500_INTERNAL_SERVER_ERROR
+		except NoCredentialsError:
+			logging.getLogger('error_logger').error("Error Saving the image, AWS S3 credentials not available: " + str(e))
+			data['code'] = status.HTTP_500_INTERNAL_SERVER_ERROR
+
 		return Response(self.response_data,status=self.code)
 
 class UserViewSet(viewsets.ModelViewSet):

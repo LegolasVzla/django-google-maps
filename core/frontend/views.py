@@ -1,25 +1,21 @@
-from django.shortcuts import render
-from django.core.serializers.json import DjangoJSONEncoder
-from django.http import (HttpResponse, HttpResponseForbidden, 
-	HttpResponseRedirect)
-#from django.core.exceptions import ObjectDoesNotExist
-from rest_framework.views import APIView
-from core.settings import (API_KEY,FONT_AWESOME_KEY,defaultLat,defaultLng,
-    max_distance,S3_ACCESS_KEY,S3_SECRET_KEY,s3_bucket_name)
-from rest_framework import status
-from api.models import (User,Spots,Images,Tags,TypesUserAction,
-    UserActions,SpotTags)
-
 from decimal import Decimal
-import boto3
-from botocore.exceptions import NoCredentialsError
-
 import json
-import requests
 import logging
 
+from django.shortcuts import render
+from django.core.serializers.json import DjangoJSONEncoder
+from django.http import (HttpResponse)
 from django.views.generic import View
+from rest_framework import status
+from api.models import (User,Spots,Images,Tags,TypesUserAction,UserActions,
+    SpotTags)
 from api.api import (SpotsViewSet)
+import boto3
+from botocore.exceptions import NoCredentialsError
+import requests
+
+from core.settings import (API_KEY,FONT_AWESOME_KEY,defaultLat,defaultLng,
+    max_distance)
 
 class IndexView(View):
 
@@ -49,7 +45,9 @@ class IndexView(View):
                 self.response_data['code'] = _spots.code
 
         except Exception as e:
-            content['data'] = {'name':'Not found information'}
+            self.response_data['data'] = {'name':'Not found information'}
+            self.code = status.HTTP_500_INTERNAL_SERVER_ERROR
+            self.response_data['error'].append("[IndexView] - Error: " + str(e))
         return render(request,template_name='frontend/index.html',context=self.response_data)
 
 class SpotView(View):
@@ -63,7 +61,7 @@ class SpotView(View):
         if request.method == 'GET':
 
             # Request to get information about the place clicked
-            if request.GET['action'] == "get_spot_modal":
+            if request.is_ajax() == True and request.GET['action'] == "get_spot_modal":
 
                 try:
                     _place_information = SpotsViewSet()
@@ -80,16 +78,22 @@ class SpotView(View):
                         self.response_data['code'] = _place_information.code
 
                 except Exception as e:
-                    logging.getLogger('error_logger').error("Error in get_spot_moda: " + str(e))
+                    logging.getLogger('error_logger').error("Error in get_spot_modal: " + str(e))
+                    self.code = status.HTTP_500_INTERNAL_SERVER_ERROR
+                    self.response_data['error'].append("[SpotsView] - Error: " + str(e))
 
             # Request to display nearby places
-            elif request.GET['action']== "get_nearby_places":
+            elif request.is_ajax() == True and request.GET['action'] == "get_nearby_places":
                 current_latitude = Decimal(request.GET['lat'])
                 current_longitude = Decimal(request.GET['lng'])
 
                 try:
                     _nearby_places = SpotsViewSet()
-                    _nearby_places.nearby_places(request,latitude=current_latitude,longitude=current_longitude,max_distance=max_distance,user='1')
+                    _nearby_places.nearby_places(request,
+                        latitude=current_latitude,
+                        longitude=current_longitude,
+                        max_distance=max_distance,user='1'
+                    )
 
                     if _nearby_places.code == 200:
 
@@ -101,6 +105,8 @@ class SpotView(View):
 
                 except Exception as e:
                     logging.getLogger('error_logger').error("Error in get_nearby_places: " + str(e))
+                    self.code = status.HTTP_500_INTERNAL_SERVER_ERROR
+                    self.response_data['error'].append("[SpotsView] - Error: " + str(e))
 
             # # Request to get information about an specific place to attempt edition
             # elif request.GET['action'] == "edit_spot_modal":
@@ -157,99 +163,36 @@ class SpotView(View):
 
         else:
             self.response_data['code'] = status.HTTP_400_BAD_REQUEST
-
+            self.response_data['error'].append("[SpotsView] - Error: " + str(e))
         return HttpResponse(json.dumps(self.response_data, cls=DjangoJSONEncoder), content_type='application/json')
 
     def post(self, request, *args, **kwargs):
         data = {}
-        
+
         # Request to create a new place
-        if request.method == 'POST':
+        try:
+            #import pdb;pdb.set_trace()
+            if request.method == 'POST':
 
-            try:
-                data['code'] = status.HTTP_200_OK
-                spotData = Spots(
-                    user_id=1,
-                    name=request.POST.get('placeName'),
-                    city=request.POST['city'],
-                    geom = GEOSGeometry("POINT({} {})".format(request.POST.get('length'), request.POST.get('latitude'))),
-                    position = GEOSGeometry("POINT({} {})".format(request.POST.get('length'), request.POST.get('latitude'))),
-                    country=request.POST['country'],
-                    country_code=request.POST['countryCode'],
-                    postal_code=request.POST['postalCode'],                
-                    lat=request.POST['latitude'],
-                    lng=request.POST['length']
-                )
-                spotData.save()
-                spot_id = Spots.objects.latest('id').id
+                _spots = SpotsViewSet()
+                _spots.create(request.POST)
 
-                if request.POST.get('image'):
+                if _spots.code == 200:
 
-                    local_file = '<path_to_the_file>'
-                    filename = request.POST.get('placeName')
-                    user_id = 1
-                    s3_env_folder_name = 'dev/spots'
-                    key = '{}/{}/{}'.format(s3_env_folder_name,user_id,filename)
+                    self.response_data['data']['spots'] = _spots.response_data['data'][0]['spots']
+                    self.response_data['code'] = _spots.code
 
-                    s3 = boto3.client('s3', aws_access_key_id=S3_ACCESS_KEY,aws_secret_access_key=S3_SECRET_KEY)
-                    s3.upload_file(local_file, s3_bucket_name, key, ExtraArgs={'ACL':'public-read'})
-                    print("Upload Successful")
-                    bucket_location = s3.get_bucket_location(Bucket=s3_bucket_name)
-                    #file_url = '{}/{}/{}/{}'.format(s3.meta.endpoint_url, s3_bucket_name, s3_env_folder_name, filename)
-                    file_url = "https://s3-{0}.amazonaws.com/{1}/{2}/{3}/{4}".format(bucket_location['LocationConstraint'],s3_bucket_name,s3_env_folder_name,user_id,filename)
+                else:
+                    self.response_data = self.response_data['data']
+                    self.response_data['code'] = _spots.code
 
-                if request.POST.get('tagList'):
+            else:
+                data['code'] = status.HTTP_400_BAD_REQUEST
 
-                    # Generate a new user action with Type USer Action case: Spot Tag
-                    user_action = UserActions(
-                        type_user_action_id=1,
-                        spot_id=spot_id
-                    )
-                    user_action.save()
-                    user_action_id = UserActions.objects.latest('id').id
-
-                    # Iterate over the tag list
-                    for current_tag_name in request.POST.get('tagList').split(','):
-
-                        # Check if the current tag already exist
-                        if(Tags.objects.filter(
-                            name=current_tag_name,
-                            is_active=True,
-                            is_deleted=False).exists()):
-                            
-                            # Get the tag_id
-                            current_tag = Tags.objects.get(
-                                name=current_tag_name,
-                                is_active=True,
-                                is_deleted=False
-                            )
-                        else:
-                            
-                            # Generate the new tag
-                            current_tag = Tags(name=current_tag_name)
-                            current_tag.save()
-
-                        current_tag_id = Tags.objects.latest('id').id
-
-                        # Generate a new spot tag
-                        spot_tag = SpotTags(
-                            user_action_id=user_action_id,
-                            tag_id=current_tag_id
-                        )
-                        spot_tag.save()
-
-            except Exception as e:
-                logging.getLogger('error_logger').error("Error Creating a new spot: " + str(e))
-                data['code'] = status.HTTP_500_INTERNAL_SERVER_ERROR
-            except FileNotFoundError:
-                logging.getLogger('error_logger').error("Error Saving the image, the file was not found: " + str(e))
-                data['code'] = status.HTTP_500_INTERNAL_SERVER_ERROR
-            except NoCredentialsError:
-                logging.getLogger('error_logger').error("Error Saving the image, AWS S3 credentials not available: " + str(e))
-                data['code'] = status.HTTP_500_INTERNAL_SERVER_ERROR
-
-        else:
-            data['code'] = status.HTTP_400_BAD_REQUEST
+        except Exception as e:
+            logging.getLogger('error_logger').error("Error Creating a new spot: " + str(e))
+            self.code = status.HTTP_500_INTERNAL_SERVER_ERROR
+            self.response_data['error'].append("[SpotsView] - Error: " + str(e))
 
         return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder), content_type='application/json')
 
