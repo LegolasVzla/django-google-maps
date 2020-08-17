@@ -51,8 +51,8 @@ class SpotsSerializer(DynamicFieldsModelSerializer,serializers.ModelSerializer):
 
     def create(self, validated_data):
         instance = Spots.objects.create(**validated_data)
-        instance.geom = GEOSGeometry("POINT({} {})".format(validated_data.get("lng"), validated_data.get("lat")))
-        instance.position = GEOSGeometry("POINT({} {})".format(validated_data.get("lng"), validated_data.get("lat")))
+        instance.geom = GEOSGeometry("POINT({} {})".format(validated_data["lng"], validated_data["lat"]))
+        instance.position = GEOSGeometry("POINT({} {})".format(validated_data["lng"], validated_data["lat"]))
         instance.save()
         return instance
 
@@ -62,7 +62,7 @@ class SpotsAPISerializer(serializers.ModelSerializer):
         model = Spots
         fields = ('user',)
 
-class CreateSpotAPISerializer(serializers.ModelSerializer):
+class CreateSpotAPISerializer(DynamicFieldsModelSerializer,serializers.ModelSerializer):
     tag_list = serializers.ListField(
         child=serializers.CharField(max_length=50),
         help_text="Tag list that you can optional relate with the place",

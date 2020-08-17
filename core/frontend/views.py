@@ -7,6 +7,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.http import (HttpResponse)
 from django.views.generic import View
 from rest_framework import status
+from rest_framework.views import APIView
 from api.models import (User,Spots,Images,Tags,TypesUserAction,UserActions,
     SpotTags)
 from api.api import (SpotsViewSet)
@@ -50,7 +51,7 @@ class IndexView(View):
             self.response_data['error'].append("[IndexView] - Error: " + str(e))
         return render(request,template_name='frontend/index.html',context=self.response_data)
 
-class SpotView(View):
+class SpotView(APIView):
 
     def __init__(self,*args, **kwargs):
         self.response_data = {'error': [], 'data': {}, 'code': status.HTTP_200_OK}
@@ -171,15 +172,29 @@ class SpotView(View):
 
         # Request to create a new place
         try:
-            #import pdb;pdb.set_trace()
             if request.method == 'POST':
 
                 _spots = SpotsViewSet()
-                _spots.create(request.POST)
+                
+                if (request.POST['tagList'].split(',')[0]==''):
+                    tagList=[]
+                else:
+                    tagList=request.POST['tagList'].split(',')
+                _spots.create_spot(request,
+                    country=request.POST['country'],
+                    country_code=request.POST['countryCode'],
+                    state=request.POST['state_name'],
+                    city=request.POST['city'],
+                    postal_code=request.POST['postalCode'],
+                    full_address=request.POST['fullAddress'],
+                    lat=request.POST['latitude'],
+                    lng=request.POST['length'],
+                    name=request.POST['placeName'],
+                    tag_list=tagList,user=1
+                )
 
                 if _spots.code == 200:
-
-                    self.response_data['data']['spots'] = _spots.response_data['data'][0]['spots']
+                    self.response_data['data']['spots'] = _spots.response_data['data'][0]
                     self.response_data['code'] = _spots.code
 
                 else:
@@ -194,7 +209,7 @@ class SpotView(View):
             self.code = status.HTTP_500_INTERNAL_SERVER_ERROR
             self.response_data['error'].append("[SpotsView] - Error: " + str(e))
 
-        return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder), content_type='application/json')
+        return HttpResponse(json.dumps(self.response_data, cls=DjangoJSONEncoder), content_type='application/json')
 
     def put(self, request, *args, **kwargs):
         data = {}

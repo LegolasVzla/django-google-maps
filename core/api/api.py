@@ -239,7 +239,9 @@ class SpotsViewSet(viewsets.ModelViewSet):
 		- Optionals: tag list, image list
 		'''
 		try:
-			serializer = CreateSpotAPISerializer(data=kwargs['data'])
+			serializer = CreateSpotAPISerializer(
+				data=kwargs['data'],
+				required_fields=['name','country','country_code','state','city','full_address','postal_code','lat','lng'])
 
 			if serializer.is_valid():
 				serializer = SpotsSerializer(data=kwargs['data'])
