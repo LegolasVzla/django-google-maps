@@ -5,7 +5,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from .serializers import (UserSerializer,SpotsSerializer,ImagesSerializer,
 	TagsSerializer,TypesUserActionSerializer,UserActionsSerializer,
-	SpotTagsSerializer,SpotsAPISerializer,PlaceInformationAPISerializer,
+	SpotTagsSerializer,UserPlacesAPISerializer,PlaceInformationAPISerializer,
 	NearbyPlacesAPISerializer,CreateSpotAPISerializer)
 from core.settings import (API_KEY,FONT_AWESOME_KEY,defaultLat,defaultLng,
     max_distance,S3_ACCESS_KEY,S3_SECRET_KEY,s3_bucket_name,s3_env_folder_name)
@@ -63,7 +63,6 @@ class SpotsViewSet(viewsets.ModelViewSet):
 	permission_classes = [
 		permissions.AllowAny
 	]	
-	#serializer_class = SpotsAPISerializer
 	pagination_class = StandardResultsSetPagination
 
 	def __init__(self, *args, **kwargs):
@@ -75,7 +74,7 @@ class SpotsViewSet(viewsets.ModelViewSet):
 		if self.action in ['create_spot']:
 			return CreateSpotAPISerializer
 		if self.action in ['user_places']:
-			return SpotsAPISerializer
+			return UserPlacesAPISerializer
 		if self.action in ['place_information']:
 			return PlaceInformationAPISerializer
 		if self.action in ['nearby_places']:
@@ -91,10 +90,7 @@ class SpotsViewSet(viewsets.ModelViewSet):
 		- Mandatory: user_id
 		'''
 		try:
-			serializer = SpotsSerializer(
-				data=kwargs['data'],
-				fields=kwargs['data']['user']
-			)
+			serializer = UserPlacesAPISerializer(data=kwargs['data'])
 
 			if serializer.is_valid():
 

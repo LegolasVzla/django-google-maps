@@ -56,11 +56,10 @@ class SpotsSerializer(DynamicFieldsModelSerializer,serializers.ModelSerializer):
         instance.save()
         return instance
 
-class SpotsAPISerializer(serializers.ModelSerializer):
-    user = serializers.IntegerField(source='id',required=True)
+class UserPlacesAPISerializer(serializers.ModelSerializer):
     class Meta:
         model = Spots
-        fields = ('user',)
+        exclude = ('name','country','country_code','state','city','full_address','postal_code','lat','lng','geom','position','is_active','is_deleted','updated_date','created_date')
 
 class CreateSpotAPISerializer(DynamicFieldsModelSerializer,serializers.ModelSerializer):
     tag_list = serializers.ListField(
@@ -72,17 +71,26 @@ class CreateSpotAPISerializer(DynamicFieldsModelSerializer,serializers.ModelSeri
         fields = ('__all__')
 
 class PlaceInformationAPISerializer(serializers.Serializer):
-    latitude = serializers.DecimalField(max_digits=22, decimal_places=16, required=True)
-    longitude = serializers.DecimalField(max_digits=22, decimal_places=16, required=True)
+    latitude = serializers.DecimalField(
+        max_digits=22, decimal_places=16, required=True,help_text="Latitude of the geographic coordinate")
+    longitude = serializers.DecimalField(
+        max_digits=22, decimal_places=16, required=True,help_text="Longitude of the geographic coordinate")
+    class Meta:
+        model = Spots
+        exclude = ('name','country','country_code','state','city','full_address','postal_code','lat','lng','geom','position','is_active','is_deleted','updated_date','created_date')
 
-class NearbyPlacesAPISerializer(serializers.Serializer):
-    latitude = serializers.DecimalField(max_digits=22, decimal_places=16, required=True)
-    longitude = serializers.DecimalField(max_digits=22, decimal_places=16, required=True)
+class NearbyPlacesAPISerializer(serializers.ModelSerializer,serializers.Serializer):
+    latitude = serializers.DecimalField(
+        max_digits=22, decimal_places=16, required=True,help_text="Latitude of your geographic coordinate")
+    longitude = serializers.DecimalField(
+        max_digits=22, decimal_places=16, required=True,help_text="Longitude of your geographic coordinate")
     max_distance = serializers.IntegerField(
         required=True,
         help_text="Distance in kilometers. A suggested value could be from 1-5 kilometers, to display nearby places"
     )
-    user = serializers.IntegerField(source='id',required=True)
+    class Meta:
+        model = Spots
+        exclude = ('name','country','country_code','state','city','full_address','postal_code','lat','lng','geom','position','is_active','is_deleted','updated_date','created_date')
 
 class ImagesSerializer(DynamicFieldsModelSerializer,serializers.ModelSerializer):
 	class Meta:
