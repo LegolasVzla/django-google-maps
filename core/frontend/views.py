@@ -56,19 +56,20 @@ class SpotView(APIView):
     def __init__(self,*args, **kwargs):
         self.response_data = {'error': [], 'data': {}, 'code': status.HTTP_200_OK}
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         data = {}
 
-        if request.method == 'GET':
+        # Request to create a new place
+        try:
 
             # Request to get information about the place clicked
-            if request.is_ajax() == True and request.GET['action'] == "get_spot_modal":
+            if request.is_ajax() == True and request.POST['action'] == 'get_spot_modal':
 
                 try:
                     _place_information = SpotsViewSet()
                     _place_information.place_information(request,
-                        latitude=request.GET['lat'],
-                        longitude=request.GET['lng'])
+                        latitude=request.POST['lat'],
+                        longitude=request.POST['lng'])
 
                     if _place_information.code == 200:
 
@@ -84,9 +85,9 @@ class SpotView(APIView):
                     self.response_data['error'].append("[SpotsView] - Error: " + str(e))
 
             # Request to display nearby places
-            elif request.is_ajax() == True and request.GET['action'] == "get_nearby_places":
-                current_latitude = Decimal(request.GET['lat'])
-                current_longitude = Decimal(request.GET['lng'])
+            elif request.is_ajax() == True and request.POST['action'] == 'get_nearby_places':
+                current_latitude = Decimal(request.POST['lat'])
+                current_longitude = Decimal(request.POST['lng'])
 
                 try:
                     _nearby_places = SpotsViewSet()
@@ -108,6 +109,35 @@ class SpotView(APIView):
                     logging.getLogger('error_logger').error("Error in get_nearby_places: " + str(e))
                     self.code = status.HTTP_500_INTERNAL_SERVER_ERROR
                     self.response_data['error'].append("[SpotsView] - Error: " + str(e))
+
+            elif request.is_ajax() == True and request.POST['action'] == 'create_spot':
+
+                _spots = SpotsViewSet()
+                
+                if (request.POST['tagList'].split(',')[0]==''):
+                    tagList=[]
+                else:
+                    tagList=request.POST['tagList'].split(',')
+                _spots.create_spot(request,
+                    country=request.POST['country'],
+                    country_code=request.POST['countryCode'],
+                    state=request.POST['state_name'],
+                    city=request.POST['city'],
+                    postal_code=request.POST['postalCode'],
+                    full_address=request.POST['fullAddress'],
+                    lat=request.POST['latitude'],
+                    lng=request.POST['length'],
+                    name=request.POST['placeName'],
+                    tag_list=tagList,user=1
+                )
+
+                if _spots.code == 200:
+                    self.response_data['data']['spots'] = _spots.response_data['data'][0]
+                    self.response_data['code'] = _spots.code
+
+                else:
+                    self.response_data = self.response_data['data']
+                    self.response_data['code'] = _spots.code
 
             # # Request to get information about an specific place to attempt edition
             # elif request.GET['action'] == "edit_spot_modal":
@@ -161,45 +191,6 @@ class SpotView(APIView):
 
             #     except Exception as e:
             #         logging.getLogger('error_logger').error("Error in Edit Spot Modal: " + str(e))
-
-        else:
-            self.response_data['code'] = status.HTTP_400_BAD_REQUEST
-            self.response_data['error'].append("[SpotsView] - Error: " + str(e))
-        return HttpResponse(json.dumps(self.response_data, cls=DjangoJSONEncoder), content_type='application/json')
-
-    def post(self, request, *args, **kwargs):
-        data = {}
-
-        # Request to create a new place
-        try:
-            if request.method == 'POST':
-
-                _spots = SpotsViewSet()
-                
-                if (request.POST['tagList'].split(',')[0]==''):
-                    tagList=[]
-                else:
-                    tagList=request.POST['tagList'].split(',')
-                _spots.create_spot(request,
-                    country=request.POST['country'],
-                    country_code=request.POST['countryCode'],
-                    state=request.POST['state_name'],
-                    city=request.POST['city'],
-                    postal_code=request.POST['postalCode'],
-                    full_address=request.POST['fullAddress'],
-                    lat=request.POST['latitude'],
-                    lng=request.POST['length'],
-                    name=request.POST['placeName'],
-                    tag_list=tagList,user=1
-                )
-
-                if _spots.code == 200:
-                    self.response_data['data']['spots'] = _spots.response_data['data'][0]
-                    self.response_data['code'] = _spots.code
-
-                else:
-                    self.response_data = self.response_data['data']
-                    self.response_data['code'] = _spots.code
 
             else:
                 data['code'] = status.HTTP_400_BAD_REQUEST

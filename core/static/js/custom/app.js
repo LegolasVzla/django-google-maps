@@ -97,7 +97,7 @@ function spotGetModal(defaultLat,defaultLng) {
 
 	$.ajax({
 	    url:'/spot/',
-	    type: 'GET',
+	    type: 'POST',
 	    data: {
 	      action: "get_spot_modal",
 	      lat: latitude,
@@ -163,7 +163,19 @@ function spotCreate(defaultLat,defaultLng){
 		$.ajax({
 		    url:'/spot/create/',
 		    type: 'POST',
-		    data: spotData,success: function showAnswer(data) {
+		    data: {
+		    	action: "create_spot",
+				country: spotData.country,
+				countryCode: spotData.countryCode,
+				state_name: spotData.state_name,
+				city: spotData.city,
+				postalCode: spotData.postalCode,
+				fullAddress: spotData.fullAddress,
+				latitude: spotData.latitude,
+				length: spotData.length,
+				placeName: spotData.placeName,
+				tagList: spotData.tagList		    
+			},success: function showAnswer(data) {
 			  if (data.code==200) {
 			    //console.log("success",data);
 		        alertify.success('Spot saved successfully');
@@ -195,7 +207,7 @@ function spotNearBy(latitude,longitude) {
 
 	$.ajax({
 	    url:'/spot/nearby/',
-	    type: 'GET',
+	    type: 'POST',
 	    data: {
 	      action: "get_nearby_places",	    	
 	      lat: latitude_aux,
@@ -243,7 +255,7 @@ function spotEditModal(spotId) {
 
 	$.ajax({
 	    url:'/spot/editSpotModal/',
-	    type: 'GET',
+	    type: 'POST',
 	    data: {
 	      action: "edit_spot_modal",
 	      spot_id: spotId
