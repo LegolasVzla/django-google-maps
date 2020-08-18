@@ -346,7 +346,7 @@ function spotRemove(spotId){
     success: function showAnswer(data) {
       if (data.code==200) {
 
-        alertify.success("The spot: '" +data.placeName+ "' was deleted successfully");
+        alertify.success("The spot: '" +data.data.placeName+ "' was deleted successfully");
         var delayInMilliseconds = 2000; // 2 second
         setTimeout(function() {
           location.reload(true);

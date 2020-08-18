@@ -356,7 +356,7 @@ class SpotsViewSet(viewsets.ModelViewSet):
 
 					# Then, delete the spot_tag list related
 					spot_tag_list = SpotTags.objects.filter(
-						user_action_id=user_action[0].id,
+						user_action_id=user_action.id,
 						is_active=True,
 						is_deleted=False
 					)

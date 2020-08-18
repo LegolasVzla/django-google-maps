@@ -393,8 +393,7 @@ class SpotView(APIView):
                 _delete_spot.destroy_spot(request,spot_id=request.data['spot_id'])
 
                 if _delete_spot.code == 200:
-                    self.response_data['data']['placeName'] = _delete_spot.response_data['data'][0]
-                    self.response_data['code'] = _delete_spot.code
+                    self.response_data['data']['placeName'] = _delete_spot.response_data['data'][0]['placeName']
 
                 else:
                     self.response_data['data'] = self.response_data['data']
