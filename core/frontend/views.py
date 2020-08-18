@@ -61,7 +61,6 @@ class SpotView(APIView):
 
         # Request to create a new place
         try:
-
             # Request to get information about the place clicked
             if request.is_ajax() == True and request.POST['action'] == 'get_spot_modal':
 
@@ -139,11 +138,11 @@ class SpotView(APIView):
                     self.response_data = self.response_data['data']
                     self.response_data['code'] = _spots.code
 
-            # # Request to get information about an specific place to attempt edition
-            # elif request.GET['action'] == "edit_spot_modal":
+            # Request to get information about an specific place to attempt edition
+            # elif request.is_ajax() == True and request.POST['action'] == "edit_spot_modal":
 
             #     try:
-            #         response = requests.get("http://localhost:8000/api/spots/"+str(request.GET['spot_id']))
+            #         response = requests.get("http://localhost:8000/api/spots/"+str(request.POST['spot_id']))
             #         response = response.content.decode('utf-8')
             #         json_response = json.loads(response)
             #         data['id'] = json_response['id']

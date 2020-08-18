@@ -1,32 +1,30 @@
+import logging
+import json
+from decimal import Decimal
+from functools import wraps
+
 from .models import (User,Spots,Images,Tags,TypesUserAction,
 	UserActions,SpotTags)
+from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
+from django.contrib.gis.geos import GEOSGeometry
+from django.contrib.gis.measure import Distance
 from rest_framework import viewsets, permissions
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from .serializers import (UserSerializer,SpotsSerializer,ImagesSerializer,
 	TagsSerializer,TypesUserActionSerializer,UserActionsSerializer,
 	SpotTagsSerializer,UserPlacesAPISerializer,PlaceInformationAPISerializer,
-	NearbyPlacesAPISerializer,CreateSpotAPISerializer)
-from core.settings import (API_KEY,FONT_AWESOME_KEY,defaultLat,defaultLng,
-    max_distance,S3_ACCESS_KEY,S3_SECRET_KEY,s3_bucket_name,s3_env_folder_name)
-
-from core.settings import (max_distance,S3_ACCESS_KEY,S3_SECRET_KEY,
-	s3_bucket_name,s3_env_folder_name)
-from django.contrib.auth import get_user_model
-
+	NearbyPlacesAPISerializer,CreateSpotAPISerializer,SpotDetailsAPISerializer)
 from rest_framework.response import Response
-from rest_framework import (status)
+from rest_framework import status
 from rest_framework.decorators import action
-from functools import wraps
-import logging
-import json
-
-from django.contrib.gis.geos import GEOSGeometry
-from django.contrib.gis.measure import Distance
-from decimal import Decimal
 
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut
+
+from core.settings import (max_distance,S3_ACCESS_KEY,S3_SECRET_KEY,
+	s3_bucket_name,s3_env_folder_name)
 
 User = get_user_model()
 
@@ -78,7 +76,9 @@ class SpotsViewSet(viewsets.ModelViewSet):
 		if self.action in ['place_information']:
 			return PlaceInformationAPISerializer
 		if self.action in ['nearby_places']:
-			return NearbyPlacesAPISerializer			
+			return NearbyPlacesAPISerializer
+		if self.action in ['spot_details']:
+			return SpotDetailsAPISerializer			
 		return SpotsSerializer
 
 	@validate_type_of_request
@@ -393,6 +393,46 @@ class SpotsViewSet(viewsets.ModelViewSet):
 			self.response_data['error'].append("[API - SpotsViewSet] - Error: " + str(e))
 		return Response(self.response_data,status=self.code)
 
+	@validate_type_of_request
+	@action(methods=['post'], detail=False)
+	def spot_details(self, request, *args, **kwargs):
+		'''
+		- POST method: get the spot details
+		- Mandatory: spot_id
+		'''
+		try:
+			serializer = SpotDetailsAPISerializer(data=kwargs['data'])
+
+			if serializer.is_valid():
+
+				try:
+					queryset = get_object_or_404(Spots,
+						is_active=True,
+						is_deleted=False,
+						id=kwargs['data']['spot_id']
+					)
+
+					serializer = SpotsSerializer(queryset,many=False,required_fields=['id'])
+					self.data['spot']=json.loads(json.dumps(serializer.data))
+
+					self.data['tagList'] = TagsViewSet().list_tags(kwargs['data']['spot_id'])
+
+					self.response_data['data'].append(self.data)
+					self.code = status.HTTP_200_OK
+
+				except Exception as e:
+					self.code = status.HTTP_404_NOT_FOUND
+					self.response_data['error'].append("[API - SpotsViewSet] - Error: " + str(e))
+
+			else:
+				return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+		except Exception as e:
+			logging.getLogger('error_logger').exception("[API - SpotsViewSet] - Error: " + str(e))
+			self.code = status.HTTP_500_INTERNAL_SERVER_ERROR
+			self.response_data['error'].append("[API - SpotsViewSet] - Error: " + str(e))
+		return Response(self.response_data,status=self.code)
+
 class UserViewSet(viewsets.ModelViewSet):
 	queryset = User.objects.all()
 	permission_classes = [
@@ -414,6 +454,44 @@ class TagsViewSet(viewsets.ModelViewSet):
 	]
 	serializer_class = TagsSerializer
 	pagination_class = StandardResultsSetPagination
+
+	def list_tags(self,spot_id):
+		
+		tag_list = []
+
+		# Check if the spot requested has any tag
+		if(UserActions.objects.filter(
+			spot_id=spot_id,
+			is_active=True,
+			is_deleted=False,
+			type_user_action_id=1
+		).exists()):
+
+			# Get user action related with the spot 
+			user_action = UserActions.objects.get(
+				spot_id=spot_id,
+				type_user_action_id=1,
+				is_active=True,
+				is_deleted=False
+			)
+
+			# Get all the spot tag list related with the user action
+			spot_tag_list = SpotTags.objects.filter(
+				user_action_id=user_action.id,
+				is_active=True,
+				is_deleted=False
+			)
+
+			# Finally, get all the tags related with the spot 
+			for current_spot_tag in spot_tag_list:
+
+				tag = Tags.objects.get(id=current_spot_tag.tag_id)
+				tag_list.append({
+					"id": tag.id,
+					"name": tag.name					
+				})
+
+		return tag_list
 
 class TypesUserActionViewSet(viewsets.ModelViewSet):
 	queryset = TypesUserAction.objects.filter(is_active=True,is_deleted=False).order_by('id')
