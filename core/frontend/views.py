@@ -193,7 +193,8 @@ class SpotView(APIView):
             #         logging.getLogger('error_logger').error("Error in Edit Spot Modal: " + str(e))
 
             else:
-                data['code'] = status.HTTP_400_BAD_REQUEST
+                self.response_data = self.response_data['data']
+                self.response_data['code'] = status.HTTP_400_BAD_REQUEST
 
         except Exception as e:
             logging.getLogger('error_logger').error("Error Creating a new spot: " + str(e))
@@ -376,79 +377,34 @@ class SpotView(APIView):
                 logging.getLogger('error_logger').error("Error Editing a spot: " + str(e))
 
         else:
-            data['code'] = status.HTTP_400_BAD_REQUEST
+            self.response_data = self.response_data['data']
+            self.response_data['code'] = status.HTTP_400_BAD_REQUEST
 
         return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder), content_type='application/json')
 
     def delete(self, request, *args, **kwargs):
         data = {}
 
-        # A spot is requested by the user to remove it 
+        # A spot is requested by the user to remove it
         if request.method == 'DELETE':
 
             try:
+                _delete_spot = SpotsViewSet()
+                _delete_spot.destroy_spot(request,spot_id=request.data['spot_id'])
 
-                spot = Spots.objects.get(id=request.POST.get('spot_id'))
-                spot.is_active = False
-                spot.is_deleted = True
-                spot.save()
+                if _delete_spot.code == 200:
+                    self.response_data['data']['placeName'] = _delete_spot.response_data['data'][0]
+                    self.response_data['code'] = _delete_spot.code
 
-                '''If an user action list exist for the current spot with 
-                type_user_action equal to 'Spot Tag', delete it'''
-                if(UserActions.objects.filter(
-                    spot_id=request.POST.get('spot_id'),
-                    type_user_action_id=1
-                )):
-
-                    user_action_id = UserActions.objects.get(
-                        spot_id=request.POST.get('spot_id'),
-                        type_user_action_id=1,
-                        is_active=True,
-                        is_deleted=False)
-                    user_action_id.is_active = False
-                    user_action_id.is_deleted = True
-                    user_action_id.save()
-
-                    # Then, delete the spot_tag list related
-                    user_action_id = UserActions.objects.get(
-                        spot_id=request.POST.get('spot_id'),
-                        type_user_action_id=1,
-                        is_active=False,
-                        is_deleted=True)
-
-                    spot_tag_list = SpotTags.objects.filter(
-                        user_action_id=user_action_id.id,
-                        is_active=True,
-                        is_deleted=False)
-                    spot_tag_list.update(is_active=False,is_deleted=True)
-
-                    # Finally, check if it's necessary to delete any tag
-                    spot_tag_list = SpotTags.objects.filter(
-                        user_action_id=user_action_id.id,
-                        is_active=False,
-                        is_deleted=True)
-
-                    for current_spot_tag in spot_tag_list:
-                        '''If the current tag doesn't exists for any other spot, 
-                        delete it''' 
-                        if not(SpotTags.objects.filter(
-                            tag_id=current_spot_tag.tag_id,
-                            is_active=True,
-                            is_deleted=False
-                        )):
-
-                            tag = Tags.objects.get(id=current_spot_tag.tag_id)
-                            tag.is_active = False                    
-                            tag.is_deleted = True
-                            tag.save()
-
-                data['placeName'] = spot.name
-                data['code'] = status.HTTP_200_OK
+                else:
+                    self.response_data['data'] = self.response_data['data']
+                    self.response_data['code'] = _delete_spot.code
 
             except Exception as e:
                 logging.getLogger('error_logger').error("Error Deleting a spot: " + str(e))
 
         else:
-            data['code'] = status.HTTP_400_BAD_REQUEST
+            self.response_data = self.response_data['data']
+            self.response_data['code'] = status.HTTP_400_BAD_REQUEST
 
-        return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder), content_type='application/json')
+        return HttpResponse(json.dumps(self.response_data, cls=DjangoJSONEncoder), content_type='application/json')

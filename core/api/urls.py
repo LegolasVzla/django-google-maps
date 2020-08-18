@@ -16,7 +16,8 @@ router.register('api/spot_tags', SpotTagsViewSet, 'spot_tags')
 urlpatterns = [
     url(r'^api/spots/user_places/$', SpotsViewSet.as_view({'post': 'user_places'}), name='user_places'),
     url(r'^api/spots/nearby_places/$', SpotsViewSet.as_view({'post': 'nearby_places'}), name='nearby_places'),
-    url(r'^api/spots/create/$', SpotsViewSet.as_view({'post': 'create_spot'}), name='create_spot')
+    url(r'^api/spots/create_spot/$', SpotsViewSet.as_view({'post': 'create_spot'}), name='create_spot'),
+    url(r'^api/spots/delete_spot/$', SpotsViewSet.as_view({'post': 'destroy_spot'}), name='destroy_spot')
 ]
 
 urlpatterns += router.urls

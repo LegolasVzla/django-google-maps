@@ -78,14 +78,14 @@ class SpotsViewSet(viewsets.ModelViewSet):
 		if self.action in ['place_information']:
 			return PlaceInformationAPISerializer
 		if self.action in ['nearby_places']:
-			return NearbyPlacesAPISerializer
+			return NearbyPlacesAPISerializer			
 		return SpotsSerializer
 
 	@validate_type_of_request
 	@action(methods=['post'], detail=False)
 	def user_places(self, request, *args, **kwargs):
 		'''
-		- POST method (post): get the user places list of
+		- POST method: get the user places list of
 		the requested user
 		- Mandatory: user_id
 		'''
@@ -118,7 +118,7 @@ class SpotsViewSet(viewsets.ModelViewSet):
 	@action(methods=['post'], detail=False)
 	def place_information(self, request, *args, **kwargs):
 		'''
-		- POST method (post): get information about a place from
+		- POST method: get information about a place from
 		latitude and longitude using geopy
 		- Mandatory: latitude, longitude
 		'''
@@ -181,7 +181,7 @@ class SpotsViewSet(viewsets.ModelViewSet):
 	@action(methods=['post'], detail=False)
 	def nearby_places(self, request, *args, **kwargs):
 		'''
-		- POST method (post): get the nearby places of
+		- POST method: get the nearby places of
 		the requested user
 		- Mandatory: latitude, longitude, max distance, user_id
 		'''
@@ -230,7 +230,7 @@ class SpotsViewSet(viewsets.ModelViewSet):
 	@action(methods=['post'], detail=False)
 	def create_spot(self, request, *args, **kwargs):
 		'''
-		- POST method (post): create a new place
+		- POST method: create a new place
 		- Mandatory: 
 		- Optionals: tag list, image list
 		'''
@@ -316,6 +316,81 @@ class SpotsViewSet(viewsets.ModelViewSet):
 			logging.getLogger('error_logger').error("Error Saving the image, AWS S3 credentials not available: " + str(e))
 			data['code'] = status.HTTP_500_INTERNAL_SERVER_ERROR
 
+		return Response(self.response_data,status=self.code)
+
+	@validate_type_of_request
+	@action(methods=['delete'], detail=False)
+	def destroy_spot(self, request, *args, **kwargs):
+		'''
+		- DELETE method: to delete a spot with all the instances related
+		- Mandatory: spot_id
+		'''
+		try:
+			serializer = SpotsSerializer(data=kwargs['data'],fields=['id'])
+
+			if serializer.is_valid():
+
+				spot = Spots.objects.get(id=request.POST.get('spot_id'))
+				spot.is_active = False
+				spot.is_deleted = True
+				spot.save()
+
+				'''If an user action list exist for the current spot with 
+				type_user_action equal to 'Spot Tag', delete it'''
+				if(UserActions.objects.filter(
+					spot_id=request.POST.get('spot_id'),
+					is_active=True,
+					is_deleted=False,
+					type_user_action_id=1
+				).exists()):
+
+					user_action = UserActions.objects.get(
+						spot_id=request.POST.get('spot_id'),
+						type_user_action_id=1,
+						is_active=True,
+						is_deleted=False
+					)
+					user_action.is_active = False
+					user_action.is_deleted = True
+					user_action.save()
+
+					# Then, delete the spot_tag list related
+					spot_tag_list = SpotTags.objects.filter(
+						user_action_id=user_action[0].id,
+						is_active=True,
+						is_deleted=False
+					)
+					spot_tag_list.update(is_active=False,is_deleted=True)
+
+					# Finally, check if it's necessary to delete any tag
+					spot_tag_list = SpotTags.objects.filter(
+						user_action_id=user_action.id,
+						is_active=True,
+						is_deleted=False
+					)
+
+					for current_spot_tag in spot_tag_list:
+
+						# If the current tag doesn't exists for any other spot, delete it
+						if len(SpotTags.objects.filter(tag_id=current_spot_tag.tag_id,is_active=True,is_deleted=False)) == 1:
+
+							tag = Tags.objects.get(id=current_spot_tag.tag_id)
+							tag.is_active = False                    
+							tag.is_deleted = True
+							tag.save()
+
+				self.data['placeName'] = spot.name
+
+				self.response_data['data'].append(self.data)
+				self.code = status.HTTP_200_OK
+
+			else:
+				return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+		except Exception as e:
+			logging.getLogger('error_logger').exception("[API - SpotsViewSet] - Error: " + str(e))
+			self.code = status.HTTP_500_INTERNAL_SERVER_ERROR
+			self.response_data['error'].append("[API - SpotsViewSet] - Error: " + str(e))
 		return Response(self.response_data,status=self.code)
 
 class UserViewSet(viewsets.ModelViewSet):
