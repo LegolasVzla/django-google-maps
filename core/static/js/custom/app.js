@@ -260,22 +260,22 @@ function spotEditModal(spotId) {
 	      action: "edit_spot_modal",
 	      spot_id: spotId
 	 },success: function showAnswer(data) {
+
 	  	if (data.code==200) {
-
 		    // Send data to the modal inputs
-		    $(".spotName").text(data.spotName)
-		    $("#placeNameToEdit").val(data.spotName)
-		    $("#countryToEdit").val(data.country_name)
-		    $("#countryCodeToEdit").val(data.country_code)
-		    $("#stateToEdit").val(data.state_name)
-		    $("#cityToEdit").val(data.city_name)
-		    $("#postalCodeToEdit").val(data.postal_code)
-		    $("#fullAddressToEdit").val(data.full_address)
-		    $("#latitudeToEdit").val(data.lat)
-		    $("#lengthToEdit").val(data.lng)
-		    $(".spotIdToEdit").text(data.id)
+		    $(".spotName").text(data.data.spot.name)
+		    $("#placeNameToEdit").val(data.data.spot.name)
+		    $("#countryToEdit").val(data.data.spot.country)
+		    $("#countryCodeToEdit").val(data.data.spot.country_code)
+		    $("#stateToEdit").val(data.data.spot.state)
+		    $("#cityToEdit").val(data.data.spot.city)
+		    $("#postalCodeToEdit").val(data.data.spot.postal_code)
+		    $("#fullAddressToEdit").val(data.data.spot.full_address)
+		    $("#latitudeToEdit").val(data.data.spot.lat)
+		    $("#lengthToEdit").val(data.data.spot.lng)
+		    $(".spotIdToEdit").text(data.data.spot.id)
 
-		    $('#jQuerytagEditorModalEdit').tagEditor('addTag', data.tagList);
+		    $('#jQuerytagEditorModalEdit').tagEditor('addTag', data.data.tagList);
 
 			//$('#jQuerytagEditorModalEdit').tagEditor({initialTags: data.tagList});
 		    
@@ -286,7 +286,7 @@ function spotEditModal(spotId) {
 		    });
 			*/
 
-		    temporalSpotToEdit = data.id
+		    temporalSpotToEdit = data.data.spot.id
 
 		}else{
 		    console.log('Error to load modal');

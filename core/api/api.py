@@ -486,10 +486,7 @@ class TagsViewSet(viewsets.ModelViewSet):
 			for current_spot_tag in spot_tag_list:
 
 				tag = Tags.objects.get(id=current_spot_tag.tag_id)
-				tag_list.append({
-					"id": tag.id,
-					"name": tag.name					
-				})
+				tag_list.append(tag.name)
 
 		return tag_list
 

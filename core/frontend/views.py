@@ -25,12 +25,12 @@ class IndexView(View):
 
     def get(self, request, *args, **kwargs):
         try:
-            _spots = SpotsViewSet()
-            _spots.user_places(request,user='1')
+            spotInstance = SpotsViewSet()
+            spotInstance.user_places(request,user='1')
 
-            if _spots.code == 200:
+            if spotInstance.code == 200:
 
-                self.response_data['data']['spots'] = _spots.response_data['data'][0]['spots']
+                self.response_data['data']['spots'] = spotInstance.response_data['data'][0]['spots']
                 self.response_data['data']['api_key'] = API_KEY
 
                 if FONT_AWESOME_KEY:
@@ -43,7 +43,7 @@ class IndexView(View):
 
             else:
                 self.response_data = self.response_data['data']
-                self.response_data['code'] = _spots.code
+                self.response_data['code'] = spotInstance.code
 
         except Exception as e:
             self.response_data['data'] = {'name':'Not found information'}
@@ -65,18 +65,18 @@ class SpotView(APIView):
             if request.is_ajax() == True and request.POST['action'] == 'get_spot_modal':
 
                 try:
-                    _place_information = SpotsViewSet()
-                    _place_information.place_information(request,
+                    spotInstance = SpotsViewSet()
+                    spotInstance.place_information(request,
                         latitude=request.POST['lat'],
                         longitude=request.POST['lng'])
 
-                    if _place_information.code == 200:
+                    if spotInstance.code == 200:
 
-                        self.response_data['data']['place_information'] = _place_information.response_data['data'][0]['place_information']
+                        self.response_data['data']['place_information'] = spotInstance.response_data['data'][0]['place_information']
 
                     else:
                         self.response_data = self.response_data['data']
-                        self.response_data['code'] = _place_information.code
+                        self.response_data['code'] = spotInstance.code
 
                 except Exception as e:
                     logging.getLogger('error_logger').error("Error in get_spot_modal: " + str(e))
@@ -89,107 +89,80 @@ class SpotView(APIView):
                 current_longitude = Decimal(request.POST['lng'])
 
                 try:
-                    _nearby_places = SpotsViewSet()
-                    _nearby_places.nearby_places(request,
+                    spotInstance = SpotsViewSet()
+                    spotInstance.nearby_places(request,
                         latitude=current_latitude,
                         longitude=current_longitude,
                         max_distance=max_distance,user='1'
                     )
 
-                    if _nearby_places.code == 200:
+                    if spotInstance.code == 200:
 
-                        self.response_data['data']['nearby'] = _nearby_places.response_data['data'][0]['nearby']
+                        self.response_data['data']['nearby'] = spotInstance.response_data['data'][0]['nearby']
 
                     else:
                         self.response_data = self.response_data['data']
-                        self.response_data['code'] = _nearby_places.code
+                        self.response_data['code'] = spotInstance.code
 
                 except Exception as e:
                     logging.getLogger('error_logger').error("Error in get_nearby_places: " + str(e))
                     self.code = status.HTTP_500_INTERNAL_SERVER_ERROR
                     self.response_data['error'].append("[SpotsView] - Error: " + str(e))
 
+            # Request to create a new spot
             elif request.is_ajax() == True and request.POST['action'] == 'create_spot':
 
-                _spots = SpotsViewSet()
-                
-                if (request.POST['tagList'].split(',')[0]==''):
-                    tagList=[]
-                else:
-                    tagList=request.POST['tagList'].split(',')
-                _spots.create_spot(request,
-                    country=request.POST['country'],
-                    country_code=request.POST['countryCode'],
-                    state=request.POST['state_name'],
-                    city=request.POST['city'],
-                    postal_code=request.POST['postalCode'],
-                    full_address=request.POST['fullAddress'],
-                    lat=request.POST['latitude'],
-                    lng=request.POST['length'],
-                    name=request.POST['placeName'],
-                    tag_list=tagList,user=1
-                )
+                try:
+                    spotInstance = SpotsViewSet()
+                    
+                    if (request.POST['tagList'].split(',')[0]==''):
+                        tagList=[]
+                    else:
+                        tagList=request.POST['tagList'].split(',')
+                    spotInstance.create_spot(request,
+                        country=request.POST['country'],
+                        country_code=request.POST['countryCode'],
+                        state=request.POST['state_name'],
+                        city=request.POST['city'],
+                        postal_code=request.POST['postalCode'],
+                        full_address=request.POST['fullAddress'],
+                        lat=request.POST['latitude'],
+                        lng=request.POST['length'],
+                        name=request.POST['placeName'],
+                        tag_list=tagList,user=1
+                    )
 
-                if _spots.code == 200:
-                    self.response_data['data']['spots'] = _spots.response_data['data'][0]
-                    self.response_data['code'] = _spots.code
+                    if spotInstance.code == 200:
+                        self.response_data['data']['spots'] = spotInstance.response_data['data'][0]
+                        self.response_data['code'] = spotInstance.code
 
-                else:
-                    self.response_data = self.response_data['data']
-                    self.response_data['code'] = _spots.code
+                    else:
+                        self.response_data = self.response_data['data']
+                        self.response_data['code'] = spotInstance.code
+
+                except Exception as e:
+                    logging.getLogger('error_logger').error("Error in create_spot: " + str(e))
+                    self.code = status.HTTP_500_INTERNAL_SERVER_ERROR
+                    self.response_data['error'].append("[SpotsView] - Error: " + str(e))
 
             # Request to get information about an specific place to attempt edition
-            # elif request.is_ajax() == True and request.POST['action'] == "edit_spot_modal":
+            elif request.is_ajax() == True and request.POST['action'] == "edit_spot_modal":
 
-            #     try:
-            #         response = requests.get("http://localhost:8000/api/spots/"+str(request.POST['spot_id']))
-            #         response = response.content.decode('utf-8')
-            #         json_response = json.loads(response)
-            #         data['id'] = json_response['id']
-            #         data['spotName'] = json_response['name']
-            #         data['country_name'] = json_response['country']
-            #         data['country_code'] = json_response['country_code']
-            #         data['state_name'] = json_response['state']
-            #         data['city_name'] = json_response['city']
-            #         data['postal_code'] = json_response['postal_code']
-            #         data['full_address'] = json_response['full_address']
-            #         data['lat'] = json_response['lat']
-            #         data['lng'] = json_response['lng']
+                try:
+                    spotInstance = SpotsViewSet()
+                    spotInstance.spot_details(request,spot_id=request.POST['spot_id'])
 
-            #         '''If an user action list exist for the current spot with 
-            #         type_user_action equal to 'Spot Tag', get it'''
-            #         if(UserActions.objects.filter(
-            #             spot_id=request.GET['spot_id'],
-            #             type_user_action_id=1
-            #         ).exists()):
+                    if spotInstance.code == 200:
 
-            #             # Get the user action id related with the spot
-            #             user_action_id = UserActions.objects.get(
-            #                 spot_id=request.GET['spot_id'],
-            #                 type_user_action_id=1,
-            #                 is_active=True,
-            #                 is_deleted=False)
+                        self.response_data['data'] = spotInstance.response_data['data'][0]
 
-            #             # Get the tag list related with the user action
-            #             spot_tag_list = SpotTags.objects.filter(
-            #                 user_action_id=user_action_id.id,
-            #                 is_active=True,
-            #                 is_deleted=False)
+                    else:
+                        self.response_data = self.response_data['data']
 
-            #             # Get all the tag names related with the tag list
-            #             tagList = []
-            #             for current_tag in spot_tag_list:
-            #                 tag = Tags.objects.get(id=current_tag.tag_id)
-            #                 tagList.append(tag.name)
-            #             data['tagList'] = tagList
-
-            #         else:
-            #             data['tagList'] = []
-
-            #         data['code'] = status.HTTP_200_OK
-
-            #     except Exception as e:
-            #         logging.getLogger('error_logger').error("Error in Edit Spot Modal: " + str(e))
+                except Exception as e:
+                    logging.getLogger('error_logger').error("Error in edit_spot_modal: " + str(e))
+                    self.code = status.HTTP_500_INTERNAL_SERVER_ERROR
+                    self.response_data['error'].append("[SpotsView] - Error: " + str(e))
 
             else:
                 self.response_data = self.response_data['data']
