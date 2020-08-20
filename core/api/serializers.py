@@ -98,6 +98,21 @@ class SpotDetailsAPISerializer(serializers.ModelSerializer):
         model = Spots
         fields = ('spot_id',)
 
+class EditSpotAPISerializer(DynamicFieldsModelSerializer,serializers.ModelSerializer):
+    tags_to_delete = serializers.ListField(
+        child=serializers.CharField(max_length=50),
+        help_text="Optionally write tags related with the place to delete them",
+        allow_empty=True)
+    new_tags = serializers.ListField(
+        child=serializers.CharField(max_length=50),
+        help_text="Optionally add new tags to relate with the place",
+        allow_empty=True)
+    spot_id = serializers.IntegerField(source='id')
+    name = serializers.CharField(max_length = 100,required=False)
+    class Meta:
+        model = Spots
+        fields = ('spot_id','name','tags_to_delete','new_tags')
+
 class ImagesSerializer(DynamicFieldsModelSerializer,serializers.ModelSerializer):
 	class Meta:
 		model = Images
