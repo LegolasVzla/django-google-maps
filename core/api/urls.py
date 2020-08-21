@@ -17,7 +17,9 @@ urlpatterns = [
     url(r'^api/spots/user_places/$', SpotsViewSet.as_view({'post': 'user_places'}), name='user_places'),
     url(r'^api/spots/nearby_places/$', SpotsViewSet.as_view({'post': 'nearby_places'}), name='nearby_places'),
     url(r'^api/spots/create_spot/$', SpotsViewSet.as_view({'post': 'create_spot'}), name='create_spot'),
-    url(r'^api/spots/delete_spot/$', SpotsViewSet.as_view({'post': 'destroy_spot'}), name='destroy_spot')
+    url(r'^api/spots/delete_spot/$', SpotsViewSet.as_view({'post': 'destroy_spot'}), name='destroy_spot'),
+    url(r'^api/spots/spot_details/$', SpotsViewSet.as_view({'post': 'spot_details'}), name='spot_details'),
+    url(r'^api/spots/edit_spot/$', SpotsViewSet.as_view({'post': 'edit_spot'}), name='edit_spot'),
 ]
 
 urlpatterns += router.urls
