@@ -416,37 +416,45 @@ class SpotsViewSet(viewsets.ModelViewSet):
 			if serializer.is_valid():
 
 				try:
-					queryset = get_object_or_404(Spots,
+
+					# Validate if spot exist
+					spot = get_object_or_404(Spots,
 						is_active=True,
 						is_deleted=False,
 						id=kwargs['data']['spot_id']
 					)
 
-					if queryset.name != kwargs['data']['name']:
-						queryset.name = kwargs['data']['name']
-						queryset.save()
-
-					if kwargs['data']['tags_to_delete']:
-						self.data['tags_deleted'] = SpotTagsViewSet().remove_spot_tags(
-							kwargs['data']['spot_id'],
-							kwargs['data']['tags_to_delete']
-						)
-
-					if kwargs['data']['new_tags']:
-
-						SpotTagsViewSet().create_spot_tags(serializer.id,kwargs['data']['new_tags'])
-
-					serializer = SpotsSerializer(queryset,many=False,required_fields=['id'])
-					self.data['spot']=json.loads(json.dumps(serializer.data))
-					self.response_data['data'].append(self.data)
-					self.code = status.HTTP_200_OK
-
 				except Exception as e:
 					self.code = status.HTTP_404_NOT_FOUND
-					self.response_data['error'].append("[API - SpotsViewSet] - Error: " + str(e))
+					raise Exception(e)
+
+				# New spot name?
+				if spot.name != kwargs['data']['name']:
+					spot.name = kwargs['data']['name']
+					spot.save()
+				else:
+					self.data['name'] = spot.name
+
+				# Tags to delete?
+				if kwargs['data']['tags_to_delete']:
+					self.data['tags_deleted'] = SpotTagsViewSet().remove_spot_tags(
+						kwargs['data']['spot_id'],
+						kwargs['data']['tags_to_delete']
+					)
+				else:
+					self.data['tags_deleted'] = []
+
+				# Tags to append?
+				if kwargs['data']['new_tags']:
+					self.data['new_tags'] = SpotTagsViewSet().create_spot_tags(spot.id,kwargs['data']['new_tags'])
+				else:
+					self.data['new_tags'] = []
+
+				self.response_data['data'].append(self.data)
+				self.code = status.HTTP_200_OK
 
 			else:
-				return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+				return Response(serializer.errors,status=self.code)
 
 		except Exception as e:
 			logging.getLogger('error_logger').exception("[API - SpotsViewSet] - Error: " + str(e))
@@ -541,6 +549,7 @@ class UserActionsViewSet(viewsets.ModelViewSet):
 
 	def create_user_action(self,type_user_action_id,spot_id):
 		try:
+			user_action = None
 
 			# Check if exists the user action for the spot_id requested
 			if(UserActions.objects.filter(
@@ -551,7 +560,7 @@ class UserActionsViewSet(viewsets.ModelViewSet):
 			).exists()):
 
 				# Get the user action
-				user_action = UserActions(
+				user_action = UserActions.objects.get(
 					type_user_action_id=type_user_action_id,
 					spot_id=spot_id,
 					is_active=True,
@@ -559,19 +568,19 @@ class UserActionsViewSet(viewsets.ModelViewSet):
 				)
 
 			else:
-
 				# Generate a new spot tag user action related with the spot_id
-				user_action = UserActionsSerializer(
-					type_user_action_id=type_user_action_id,
-					spot_id=spot_id
-				)
+				user_action=UserActionsSerializer(data={"type_user_action":type_user_action_id,"spot":spot_id})
 				if user_action.is_valid():
 					user_action.save()
 				else:
-					raise serializer.errors
+					raise Exception(user_action.errors)
+
+			return user_action
 
 		except Exception as e:
-			raise "An error happened in create_user_action: " + str(e)
+			if user_action != None:
+				user_action.delete()
+			raise Exception("An error happened in create_user_action: " + str(e))
 
 class SpotTagsViewSet(viewsets.ModelViewSet):
 	queryset = SpotTags.objects.filter(
@@ -590,39 +599,35 @@ class SpotTagsViewSet(viewsets.ModelViewSet):
 		'''
 		try:
 			tag_list_created = []
+			user_action = None
+			spot_tag = None
 
 			# Get or create spot tag user action related with the spot
 			user_action = UserActionsViewSet().create_user_action(1,spot_id)
 
 			# Iterate over the tag list
-			for current_tag_name in kwargs['data']['tag_list']:
+			for current_tag_name in tag_list:
+				try:
 
-				# Check if the current tag already exist
-				if(Tags.objects.filter(
-					name=current_tag_name,
-					is_active=True,
-					is_deleted=False
-				).exists()):
-	                
-					# Get the tag_id
-					current_tag = Tags.objects.get(
-						name=current_tag_name,
-						is_active=True,
-						is_deleted=False
-					)
+					# Check if the current tag already exist
+					current_tag = get_object_or_404(Tags,name=current_tag_name,is_active=True,is_deleted=False)
 
-				else:
+				except Exception as e:
 
 					# Generate the new tag
 					current_tag = Tags(name=current_tag_name)
 					current_tag.save()
 
-				# Generate a new spot tag
-				spot_tag = SpotTags(
-					user_action_id=user_action_id,
-					tag_id=current_tag.id
-				)
-				spot_tag.save()
+				try:
+
+					# Check if the current spot tag already exists with the spot 
+					spot_tag = get_object_or_404(SpotTags,user_action=user_action.id,tag=current_tag.id,is_active=True,is_deleted=False)
+
+				except Exception as e:
+
+					# Generate a new spot tag
+					spot_tag = SpotTags(user_action_id=user_action.id,tag_id=current_tag.id)
+					spot_tag.save()
 
 				tag_list_created.append({
 					"spot_tag_id": spot_tag.id,
@@ -631,7 +636,11 @@ class SpotTagsViewSet(viewsets.ModelViewSet):
 				})
 
 		except Exception as e:
-			raise "An error happened in create_spot_tags: " + str(e)
+			if user_action != None:
+				user_action.delete()
+			if current_tag != None:
+				current_tag.delete()
+			raise Exception("An error happened in create_spot_tags: " + str(e))
 
 		return tag_list_created
 
@@ -690,7 +699,8 @@ class SpotTagsViewSet(viewsets.ModelViewSet):
 				except Exception as e:
 					continue
 
-		# Tag weren't found related with the spot requested
+		# There isn't user action related with the spot requested,
+		# so the tags requested are fake. Then, ignore them
 		except Exception as e:
 			pass
 

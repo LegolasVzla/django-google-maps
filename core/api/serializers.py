@@ -63,7 +63,7 @@ class UserPlacesAPISerializer(serializers.ModelSerializer):
 
 class CreateSpotAPISerializer(DynamicFieldsModelSerializer,serializers.ModelSerializer):
     tag_list = serializers.ListField(
-        child=serializers.CharField(max_length=50),
+        child=serializers.CharField(max_length=100),
         help_text="Tag list that you can optional relate with the place",
         allow_empty=True)
     class Meta:
@@ -100,11 +100,11 @@ class SpotDetailsAPISerializer(serializers.ModelSerializer):
 
 class EditSpotAPISerializer(DynamicFieldsModelSerializer,serializers.ModelSerializer):
     tags_to_delete = serializers.ListField(
-        child=serializers.CharField(max_length=50),
+        child=serializers.CharField(max_length=100),
         help_text="Optionally write tags related with the place to delete them",
         allow_empty=True)
     new_tags = serializers.ListField(
-        child=serializers.CharField(max_length=50),
+        child=serializers.CharField(max_length=100),
         help_text="Optionally add new tags to relate with the place",
         allow_empty=True)
     spot_id = serializers.IntegerField(source='id')
