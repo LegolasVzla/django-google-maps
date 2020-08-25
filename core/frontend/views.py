@@ -176,24 +176,26 @@ class SpotView(APIView):
         return HttpResponse(json.dumps(self.response_data, cls=DjangoJSONEncoder), content_type='application/json')
 
     def put(self, request, *args, **kwargs):
-        temporalTagList = ['funny','amazing']
 
         # User is sending spot data to update
         if request.is_ajax() == True and request.method == 'PUT':
 
             try:
-                #import pdb;pdb.set_trace()
                 spot_instance = SpotsViewSet()
+
+                if (request.POST['tags'].split(',')[0]==''):
+                    tagList=[]
+                else:
+                    tagList=request.POST['tags'].split(',')
+
                 spot_instance.edit_spot(request,
-                    spot_id=request.POST['spot_id'],
+                    spot_id=request.POST['spotId'],
                     name=request.POST['name'],
-                    tags_to_delete=request.POST['tags_to_delete'],
-                    new_tags=request.POST['new_tags']                    
+                    tags=tagList
                 )
 
                 if spot_instance.code == 200:
-
-                    self.response_data['data']['place_information'] = spot_instance.response_data['data'][0]['place_information']
+                    self.response_data['data'] = spot_instance.response_data['data']
 
                 else:
                     self.response_data = self.response_data['data']

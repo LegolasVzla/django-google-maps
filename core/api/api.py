@@ -435,18 +435,18 @@ class SpotsViewSet(viewsets.ModelViewSet):
 				else:
 					self.data['name'] = spot.name
 
+				tags_to_delete = []
+				tags_to_delete = TagsViewSet().list_tags_to_delete(spot.id,kwargs['data']['tags'])
+
 				# Tags to delete?
-				if kwargs['data']['tags_to_delete']:
-					self.data['tags_deleted'] = SpotTagsViewSet().remove_spot_tags(
-						kwargs['data']['spot_id'],
-						kwargs['data']['tags_to_delete']
-					)
+				if tags_to_delete:
+					self.data['tags_deleted'] = SpotTagsViewSet().remove_spot_tags(kwargs['data']['spot_id'],tags_to_delete)
 				else:
 					self.data['tags_deleted'] = []
 
 				# Tags to append?
-				if kwargs['data']['new_tags']:
-					self.data['new_tags'] = SpotTagsViewSet().create_spot_tags(spot.id,kwargs['data']['new_tags'])
+				if kwargs['data']['tags']:
+					self.data['new_tags'] = SpotTagsViewSet().create_spot_tags(spot.id,kwargs['data']['tags'])
 				else:
 					self.data['new_tags'] = []
 
@@ -490,22 +490,15 @@ class TagsViewSet(viewsets.ModelViewSet):
 	serializer_class = TagsSerializer
 	pagination_class = StandardResultsSetPagination
 
-	def list_tags(spot_id):
+	def list_tags(self,spot_id):
 		'''
 		Function to list all tags related with the spot requested
 		'''
-		tag_list = []
+		try:
+			tag_list = []
 
-		# Check if the spot requested has any tag
-		if(UserActions.objects.filter(
-			spot_id=spot_id,
-			is_active=True,
-			is_deleted=False,
-			type_user_action_id=1
-		).exists()):
-
-			# Get user action related with the spot 
-			user_action = UserActions.objects.get(
+			# Check if the spot requested has any tag
+			user_action = get_object_or_404(UserActions,
 				spot_id=spot_id,
 				type_user_action_id=1,
 				is_active=True,
@@ -525,7 +518,51 @@ class TagsViewSet(viewsets.ModelViewSet):
 				tag = Tags.objects.get(id=current_spot_tag.tag_id)
 				tag_list.append(tag.name)
 
+		# It wasn't found a spot_tag user action related with the spot_id
+		# or the spot_tag user action isn't related with a tag, because
+		# any tag was previously deleted 
+		except Exception as e:
+			pass
+
 		return tag_list
+
+	def list_tags_to_delete(self,spot_id,tag_list):
+		'''	
+		This function return the tags to delete from tag_list,
+		according if any tag exist or not and is related with
+		the spot_id, so the rest of the tags will keep
+		'''
+		tags_to_delete = []
+		try:
+
+			# Check if the spot requested has any tag
+			user_action = get_object_or_404(UserActions,
+				spot_id=spot_id,
+				type_user_action_id=1,
+				is_active=True,
+				is_deleted=False
+			)
+
+			# Get all the spot tag list related with the user action
+			spot_tag_list = SpotTags.objects.filter(
+				user_action_id=user_action.id,
+				is_active=True,
+				is_deleted=False
+			)
+
+			# Finally, get all the tags related with the spot 
+			for current_spot_tag in spot_tag_list:
+
+				tag = Tags.objects.get(id=current_spot_tag.tag_id)
+
+				if tag.name not in tag_list:
+
+					tags_to_delete.append(tag.name)
+
+		except Exception as e:
+			pass
+
+		return tags_to_delete
 
 class TypesUserActionViewSet(viewsets.ModelViewSet):
 	queryset = TypesUserAction.objects.filter(
