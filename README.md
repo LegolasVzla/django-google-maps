@@ -1,7 +1,7 @@
 # django-google-maps
 Basic example of how to use Google Maps with Django and PostGIS 
 
-![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/static/media/app_image.jpeg "App Image")
+![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/static/media/app_image1.jpeg "App Image")
 
 ## Technologies
 - [Django REST framework](https://www.django-rest-framework.org/) is a powerful and flexible toolkit for building Web APIs.
@@ -9,6 +9,8 @@ Basic example of how to use Google Maps with Django and PostGIS
 - [PostgreSQL](https://www.postgresql.org/) is the World's Most Advanced Open Source Relational Database.
 
 - [PostGIS](http://postgis.net/) is a spatial database extender for PostgreSQL object-relational database. It adds support for geographic objects allowing location queries to be run in SQL.
+
+- [Geopy](https://geopy.readthedocs.io/en/stable/) is a Python client for several popular geocoding web services.
 
 - [Amazon S3](https://aws.amazon.com/s3/): Amazon Simple Storage Service (Amazon S3) is an object storage service that offers industry-leading scalability, data availability, security, and performance. 
 
@@ -97,22 +99,45 @@ Endpoint |HTTP Method | CRUD Method | Result
 `api/<instance>/:id` | PUT | UPDATE | Update a <instance> record
 `api/<instance>/:id` | DELETE | DELETE | Delete a <instance> record
 
-## Actions
+## Aditional Endpoints related with possible actions
 
-- CRUD:
+1. Add a custom place (CREATE): 
 
-1. Add a custom place (CREATE): in "GoogleMaps" tab, you can create a new spot doing click in a position of the map and then doing click in "Add a Place" buttom, fill up the form and save your spot. Also, you can create a several list of tags for you place.
+* Endpoint path: `api/spots/create_spot/`
 
-![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/static/media/app_image1.jpeg "App Image")
+In "GoogleMaps" tab, you can create a new spot doing click in a position of the map and then doing click on the "Add Place" buttom: ![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/static/media/app_image3.png "Add Place"), fill up the form and save your spot. Also, you can create a several list of tags for you place.
 
-2. See spots details (READ): in "My Spot List" tab, you can see all the details of your spot list. 
+![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/static/media/app_image2.jpeg "App Image")
 
-3. Edit spots (UPDATE): in "My Spot List" tab, you can edit spots.
+2. See spots details (READ): 
 
-4. Remove a place (DELETE): in "My Spot List" tab, you can delete an spot in the garbage icon. This action will delete the tags related with the spot if those tags doesn't exists for any other spot.
+* Endpoint path: `api/spots/user_places/`
 
-- Nearby places: in "GoogleMaps" tab, you can display nearby places from your current position within 'max_distance'. The map will show your nearby places with the icon below:
-![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/static/media/place_icon.png "Custom Spot")
+In "My Spot List" tab, you can see all the details of your spot list. 
+
+3. Spot details (RETRIEVE):
+
+* Endpoint path: `api/spots/spot_details/`
+
+In "My Spot List" tab, you can click on any spot and see the information related with it.
+
+4. Edit spots (UPDATE):
+
+* Endpoint path: `api/spots/edit_spot/`
+
+In "My Spot List" tab, you can edit spots by changging name or tags related with it.
+
+5. Remove a place (DELETE):
+
+* Endpoint path: `api/spots/delete_spot/`
+
+In "My Spot List" tab, you can delete a spot in the garbage icon. This action will delete the tags related with the spot if those tags doesn't exists for any other spot.
+
+6. Nearby places
+
+* Endpoint path: `api/spots/nearby_places/`
+
+In "GoogleMaps" tab, you can display nearby places from your current position within 'max_distance' in the nearby buttom: ![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/static/media/app_image4.png "Nearby Places"). The map will show your nearby places with the icon below: ![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/static/media/place_icon.png "Custom Spot")
 
 ## Querying geometry data in PgAdmin4
 
@@ -159,7 +184,7 @@ You can find more information about administrative divisions in:
 ## Contributions
 ------------------------
 
-I started this project from [yt-google-maps-1](https://github.com/Klerith/yt-google-maps-1) repository.
+I started this project from [yt-google-maps-1](https://github.com/Klerith/yt-google-maps-1) repository and I could learn and fun myself at the same time :)
 
 All work to improve performance is good
 
