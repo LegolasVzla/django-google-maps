@@ -304,6 +304,7 @@ function spotUpdate(){
 	}else{
 		spotData["name"]=$("#placeNameToEdit").val();
 		spotData["spotId"] = temporalSpotToEdit
+		spotData["tags"]=$("#jQuerytagEditorModalEdit").val();
 		temporalSpotToEdit = null
 
 		//var newTags = $('#jQuerytagEditorModalEdit').tagEditor('getTags')[0].tags;
