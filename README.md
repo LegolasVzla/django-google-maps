@@ -109,6 +109,8 @@ In "GoogleMaps" tab, you can create a new spot doing click in a position of the 
 
 ![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/static/media/app_image2.jpeg "App Image")
 
+Note: I used [tagEditor](https://goodies.pixabay.com/jquery/tag-editor/demo.html) plugin to create and edit tags, unfortunately this project is death but was the most recent jQuery tag editor that I could found.
+
 2. See spots details (READ): 
 
 * Endpoint path: `api/spots/user_places/`
