@@ -101,45 +101,45 @@ Endpoint |HTTP Method | CRUD Method | Result
 
 ## Aditional Endpoints related with possible actions
 
-1. Add a custom place (CREATE): 
+**Add a custom place (CREATE)**
 
 * Endpoint path: `api/spots/create_spot/`
 
-In "GoogleMaps" tab, you can create a new spot doing click in a position of the map and then doing click on the "Add Place" buttom: ![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/static/media/app_image3.png "Add Place"), fill up the form and save your spot. Also, you can create a several list of tags for you place.
+In "GoogleMaps" tab, you can create a new spot doing click in a position of the map and then doing click on the "Add Place" buttom: ![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/static/media/app_image3.jpeg "Add Place"), fill up the form and save your spot. Also, you can create a several list of tags for you place.
 
 ![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/static/media/app_image2.jpeg "App Image")
 
 Note: I used [tagEditor](https://goodies.pixabay.com/jquery/tag-editor/demo.html) plugin to create and edit tags, unfortunately this project is death but was the most recent jQuery tag editor that I could found.
 
-2. See spots details (READ): 
+**See spots details (READ)**
 
 * Endpoint path: `api/spots/user_places/`
 
 In "My Spot List" tab, you can see all the details of your spot list. 
 
-3. Spot details (RETRIEVE):
+**Spot details (RETRIEVE)**
 
 * Endpoint path: `api/spots/spot_details/`
 
 In "My Spot List" tab, you can click on any spot and see the information related with it.
 
-4. Edit spots (UPDATE):
+**Edit spots (UPDATE)**
 
 * Endpoint path: `api/spots/edit_spot/`
 
 In "My Spot List" tab, you can edit spots by changging name or tags related with it.
 
-5. Remove a place (DELETE):
+**Remove a place (DELETE)**
 
 * Endpoint path: `api/spots/delete_spot/`
 
 In "My Spot List" tab, you can delete a spot in the garbage icon. This action will delete the tags related with the spot if those tags doesn't exists for any other spot.
 
-6. Nearby places
+**Nearby places**
 
 * Endpoint path: `api/spots/nearby_places/`
 
-In "GoogleMaps" tab, you can display nearby places from your current position within 'max_distance' in the nearby buttom: ![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/static/media/app_image4.png "Nearby Places"). The map will show your nearby places with the icon below: ![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/static/media/place_icon.png "Custom Spot")
+In "GoogleMaps" tab, you can display nearby places from your current position within 'max_distance' in the nearby buttom: ![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/static/media/app_image4.jpeg "Nearby Places"). The map will show your nearby places with the icon below: ![](https://raw.githubusercontent.com/LegolasVzla/django-google-maps/master/core/static/media/place_icon.png "Custom Spot")
 
 ## Querying geometry data in PgAdmin4
 
